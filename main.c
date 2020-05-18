@@ -9,47 +9,15 @@
 #include <stdbool.h>
 #include <termio.h>
 
-#include "vm.h"
+#include "chip8.h"
 
-#define MEMORY_SIZE_BYTES (2 << 11) /* 4K */
-#define PROGRAM_START 0x200
-#define MAX_STACK_DEPTH 32
-/* #define FREQUENCY 10      /\* Hz *\/ */
-#define FREQUENCY 60      /* Hz */
-#define USECONDS_PER_STEP (1000000 / FREQUENCY) /* Seconds per step */
-#define FRAMEBUF_HEIGHT 64
-#define FRAMEBUF_WIDTH 32
-#define FRAMEBUF_SIZE (FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH)
-
-enum {
-    RUNNING,
-    PAUSED,
-} state;
-
-struct {
-    uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF;
-
-    uint8_t I;
-    uint16_t PC;
-    uint8_t DT;
-    uint8_t ST;
-
-    uint8_t ram[MEMORY_SIZE_BYTES];
-    uint8_t stack[MAX_STACK_DEPTH];
-
-    uint8_t fb[FRAMEBUF_SIZE];
-    uint8_t fb_old[FRAMEBUF_SIZE];
-
-    bool is_fb_dirty;
-} vm = {0};
-
-void fb_redraw(void)
+void fb_redraw(chip8 *vm)
 {
     for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
         for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
             size_t idx = row * FRAMEBUF_WIDTH + col;
-            uint8_t pixel = vm.fb[idx];
-            uint8_t pixel_old = vm.fb_old[idx];
+            uint8_t pixel = vm->fb[idx];
+            uint8_t pixel_old = vm->fb_old[idx];
             if (pixel != pixel_old) {
                 if (pixel == 0) {
                     putchar(' ');
@@ -61,7 +29,7 @@ void fb_redraw(void)
         putchar('\n');
     }
 
-    memcpy(vm.fb_old, vm.fb, sizeof(vm.fb));
+    memcpy(vm->fb_old, vm->fb, sizeof(vm->fb));
 }
 
 void fb_init(void)
@@ -94,21 +62,6 @@ void fb_clear(void)
 
 void step(uint16_t instruction)
 {
-    uint16_t type = (0xF000 & instruction) >> 12;
-    uint16_t x = (0x0F00 & instruction) >> 8;
-    uint16_t y = (0x00F0 & instruction) >> 4;
-    uint16_t nnn = (0x0FFF & instruction);
-    uint16_t kk = (0x00FF & instruction);
-    uint16_t n = (0x000F & instruction);
-    /* TODO: The super switch */
-    switch (type) {
-    case 0:{
-
-    }
-    default:
-        fprintf(stderr, "Unknown instruction: %04x\n", instruction);
-        exit(EXIT_FAILURE);
-    }
 }
 
 int main(int argc, char *argv[])
@@ -143,13 +96,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    chip8 vm;
+    chip8_reset(&vm);
     if (read(rom_fd, vm.ram, MEMORY_SIZE_BYTES) < 0) {
         perror("read");
         exit(EXIT_FAILURE);
     }
 
-
-    vm.PC = PROGRAM_START;
     printf("Hello, piglet!\n");
 
     fb_init();
@@ -165,12 +118,11 @@ int main(int argc, char *argv[])
         /* TODO: tmp */
         usleep(1000);
 
-        /* big-endian (MSB first) */
-        uint16_t instruction = vm.ram[vm.PC] << 8;
-        instruction |= vm.ram[vm.PC + 1];
-        vm.PC += 2;
-        step(instruction);
+        uint16_t instruction = chip8_fetch(&vm);
+        chip8_exec(&vm, instruction);
+        chip8_bump_PC(&vm);
 
+        /* TODO: should be a step */
         /* decrease the timer */
         if (vm.DT > 0) {
             vm.DT -= 1;
@@ -184,7 +136,7 @@ int main(int argc, char *argv[])
 
         /* refresh the image */
         if (vm.is_fb_dirty) {
-            fb_redraw();
+            fb_redraw(&vm);
             vm.is_fb_dirty = false;
         }
 
