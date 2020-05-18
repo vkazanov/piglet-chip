@@ -19,6 +19,7 @@
 #define USECONDS_PER_STEP (1000000 / FREQUENCY) /* Seconds per step */
 #define FRAMEBUF_HEIGHT 64
 #define FRAMEBUF_WIDTH 32
+#define FRAMEBUF_SIZE (FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH)
 
 enum {
     RUNNING,
@@ -36,15 +37,78 @@ struct {
     uint8_t ram[MEMORY_SIZE_BYTES];
     uint8_t stack[MAX_STACK_DEPTH];
 
-    uint8_t fb[FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH];
-    uint8_t fb_old[FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH];
+    uint8_t fb[FRAMEBUF_SIZE];
+    uint8_t fb_old[FRAMEBUF_SIZE];
 
     bool is_fb_dirty;
 } vm = {0};
 
-void redraw_fb(void)
+void fb_redraw(void)
 {
+    for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
+        for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
+            size_t idx = row * FRAMEBUF_WIDTH + col;
+            uint8_t pixel = vm.fb[idx];
+            uint8_t pixel_old = vm.fb_old[idx];
+            if (pixel != pixel_old) {
+                if (pixel == 0) {
+                    putchar(' ');
+                } else {
+                    putchar('O');
+                }
+            }
+        }
+        putchar('\n');
+    }
 
+    memcpy(vm.fb_old, vm.fb, sizeof(vm.fb));
+}
+
+void fb_init(void)
+{
+    /* TODO: extract an IO handling module */
+    struct termios orig_term_attr;
+    struct termios new_term_attr;
+    /* TODO: error checking */
+    tcgetattr(fileno(stdin), &orig_term_attr);
+
+    memcpy(&new_term_attr, &orig_term_attr, sizeof(struct termios));
+    new_term_attr.c_lflag &= ~(ECHO|ICANON);
+    new_term_attr.c_cc[VTIME] = 0;
+    new_term_attr.c_cc[VMIN] = 0;
+
+    /* TODO: error checking */
+    tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
+}
+
+void fb_clear(void)
+{
+    write(fileno(stdin), "\033c", 4);
+    for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
+        for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
+            putchar(' ');
+        }
+        putchar('\n');
+    }
+}
+
+void step(uint16_t instruction)
+{
+    uint16_t type = (0xF000 & instruction) >> 12;
+    uint16_t x = (0x0F00 & instruction) >> 8;
+    uint16_t y = (0x00F0 & instruction) >> 4;
+    uint16_t nnn = (0x0FFF & instruction);
+    uint16_t kk = (0x00FF & instruction);
+    uint16_t n = (0x000F & instruction);
+    /* TODO: The super switch */
+    switch (type) {
+    case 0:{
+
+    }
+    default:
+        fprintf(stderr, "Unknown instruction: %04x\n", instruction);
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -84,27 +148,12 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* clear screen using an ANSI code */
-    /* TODO: should a the part of an IO module */
-    write(fileno(stdin), "\033c", 4);
 
     vm.PC = PROGRAM_START;
     printf("Hello, piglet!\n");
 
-    /* setup the terminal */
-    /* TODO: extract an IO handling module */
-    struct termios orig_term_attr;
-    struct termios new_term_attr;
-    /* TODO: error checking */
-    tcgetattr(fileno(stdin), &orig_term_attr);
-
-    memcpy(&new_term_attr, &orig_term_attr, sizeof(struct termios));
-    new_term_attr.c_lflag &= ~(ECHO|ICANON);
-    new_term_attr.c_cc[VTIME] = 0;
-    new_term_attr.c_cc[VMIN] = 0;
-
-    /* TODO: error checking */
-    tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
+    fb_init();
+    fb_clear();
 
     /* main loop */
     while (state == RUNNING) {
@@ -113,12 +162,14 @@ int main(int argc, char *argv[])
         struct timeval start_time, end_time;
         gettimeofday(&(start_time), NULL);
 
+        /* TODO: tmp */
         usleep(1000);
 
         /* big-endian (MSB first) */
         uint16_t instruction = vm.ram[vm.PC] << 8;
         instruction |= vm.ram[vm.PC + 1];
         vm.PC += 2;
+        step(instruction);
 
         /* decrease the timer */
         if (vm.DT > 0) {
@@ -128,11 +179,13 @@ int main(int argc, char *argv[])
         /* decrease the sound timer */
         if (vm.ST > 0) {
             vm.ST -= 1;
+            /* TODO: Play sound */
         }
 
         /* refresh the image */
         if (vm.is_fb_dirty) {
-            redraw_fb();
+            fb_redraw();
+            vm.is_fb_dirty = false;
         }
 
         /* read input */
