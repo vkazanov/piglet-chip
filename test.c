@@ -124,6 +124,47 @@ int main(int argc, char *argv[])
         assert(vm.PC == PROGRAM_START + 2);
     }
 
+    {
+        /* LD Vx, byte*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        chip8_exec(&vm, INSTR_XKK(0x6, V1, 10));
+        assert(vm.regs[V1] == 10);
+
+        chip8_exec(&vm, INSTR_XKK(0x6, V1, 12));
+        assert(vm.regs[V1] == 12);
+    }
+
+    {
+        /* ADD Vx, byte*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        chip8_exec(&vm, INSTR_XKK(0x7, V1, 10));
+        assert(vm.regs[V1] == 10);
+        chip8_exec(&vm, INSTR_XKK(0x7, V1, 12));
+        assert(vm.regs[V1] == 22);
+    }
+
+    {
+        /* LD Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V2] = 0x22;
+        vm.regs[V3] = 0x33;
+
+        chip8_exec(&vm, INSTR_XY(0x8, V1, V2));
+        assert(vm.regs[V1] == 0x22);
+
+        chip8_exec(&vm, INSTR_XY(0x8, V1, V3));
+        assert(vm.regs[V1] == 0x33);
+    }
+
     return 0;
 
 #undef INSTR_NNN

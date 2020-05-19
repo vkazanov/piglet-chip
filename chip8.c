@@ -95,12 +95,33 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         break;
     }
     case 0x5:{
-        /* 0x4xkk - SE Vx, Vy */
+        /* 0x5xy0 - SE Vx, Vy */
         /* Compare value in Vx with value in Vy, skip instr if equal */
 
         if (vm->regs[x] == vm->regs[y]) {
             vm->PC += 2;
         }
+        break;
+    }
+    case 0x6:{
+        /* 0x6xkk - LD Vx, byte */
+        /* Load kk into Vx */
+
+        vm->regs[x] = kk;
+        break;
+    }
+    case 0x7:{
+        /* 0x7xkk - ADD Vx, byte */
+        /* Add kk to the value in Vx */
+
+        vm->regs[x] += kk;
+        break;
+    }
+    case 0x8:{
+        /* 0x8xy0 - LD Vx, Vy */
+        /* Load Vy into Vx */
+
+        vm->regs[x] = vm->regs[y];
         break;
     }
     default:{
