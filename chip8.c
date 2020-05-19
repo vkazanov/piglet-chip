@@ -35,7 +35,29 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
     /* TODO: The super switch */
     switch (type) {
     case 0:{
+        switch (nnn) {
+        case 0x0e0:{
+            /* 00e0 - CLS */
+            /* Clear screen */
 
+            /* TODO */
+            break;
+        }
+        case 0x0ee:{
+            /* 00e0 - RET */
+            /* Return from a subroutine */
+
+            /* TODO */
+            break;
+        }
+        default:{
+            /* 0nnn - SYS addr */
+            /* Jump to a routine at nnn (currently ignored) */
+
+            break;
+        }
+        }
+        break;
     }
     default:{
         fprintf(stderr, "Unknown instruction: %04x\n", instruction);
