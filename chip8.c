@@ -34,7 +34,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 
     /* TODO: The super switch */
     switch (type) {
-    case 0:{
+    case 0x0:{
         switch (nnn) {
         case 0x0e0:{
             /* 00e0 - CLS */
@@ -47,7 +47,8 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* 00e0 - RET */
             /* Return from a subroutine */
 
-            /* TODO */
+            vm->SP--;
+            vm->PC = vm->stack[vm->SP];
             break;
         }
         default:{
@@ -59,8 +60,51 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         }
         break;
     }
+    case 0x1:{
+        /* 0x1nnn - JP addr */
+        /* Jump to addr */
+
+        vm->PC = nnn;
+        break;
+    }
+    case 0x2:{
+        /* 0x2nnn - CALL addr */
+        /* A subroutine call at addr */
+
+        vm->stack[vm->SP] = vm->PC;
+        vm->SP++;
+        vm->PC = nnn;
+        break;
+    }
+    case 0x3:{
+        /* 0x3xkk - SE Vx, byte */
+        /* Compare value in Vx with byte kk, skip instr if equal */
+
+        if (vm->regs[x] == kk) {
+            vm->PC += 2;
+        }
+        break;
+    }
+    case 0x4:{
+        /* 0x4xkk - SNE Vx, byte */
+        /* Compare value in Vx with byte kk, skip instr if NOT equal */
+
+        if (vm->regs[x] != kk) {
+            vm->PC += 2;
+        }
+        break;
+    }
+    case 0x5:{
+        /* 0x4xkk - SE Vx, Vy */
+        /* Compare value in Vx with value in Vy, skip instr if equal */
+
+        if (vm->regs[x] == vm->regs[y]) {
+            vm->PC += 2;
+        }
+        break;
+    }
     default:{
-        fprintf(stderr, "Unknown instruction: %04x\n", instruction);
+        fprintf(stderr, "Unknown instruction: 0x%04x\n", instruction);
         exit(EXIT_FAILURE);
     }
     }

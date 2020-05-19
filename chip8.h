@@ -19,9 +19,14 @@ enum {
     PAUSED,
 } state;
 
+enum {
+    V0, V1,V2, V3, V4, V5, V6, V7, V8, V9, Va, Vb, Vc, Vd, Ve,
+    Vf
+} reg_names;
+
 typedef struct chip8 {
-    /* Vx - general purpose registers, VF for flags  */
-    uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF;
+    /* 0x0..0xE - general purpose registers, 0xF for flags  */
+    uint8_t regs[0xf];
 
     /* Mostly for memory addresses, only 12 lower bits used */
     uint16_t I;
