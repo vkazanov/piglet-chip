@@ -118,10 +118,85 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         break;
     }
     case 0x8:{
-        /* 0x8xy0 - LD Vx, Vy */
-        /* Load Vy into Vx */
+        switch (n) {
+        case 0x0:{
+            /* 0x8xy0 - LD Vx, Vy */
+            /* Load Vy into Vx */
 
-        vm->regs[x] = vm->regs[y];
+            vm->regs[x] = vm->regs[y];
+            break;
+        }
+        case 0x1:{
+            /* 0x8xy1 - OR Vx, Vy */
+            /* OR Vy into Vx */
+
+            vm->regs[x] |= vm->regs[y];
+            break;
+        }
+        case 0x2:{
+            /* 0x8xy2 - AND Vx, Vy */
+            /* AND Vy into Vx */
+
+            vm->regs[x] &= vm->regs[y];
+            break;
+        }
+        case 0x3:{
+            /* 0x8xy3 - XOR Vx, Vy */
+            /* XOR Vy into Vx */
+
+            vm->regs[x] ^= vm->regs[y];
+            break;
+        }
+        case 0x4:{
+            /* 0x8xy4 - ADD Vx, Vy */
+            /* ADD Vy into Vx, with carry to VF */
+
+            uint16_t acc = vm->regs[x] + vm->regs[y];
+            vm->regs[x] = acc & 0xff;
+            vm->regs[Vf] = (acc & 0xf00) >> 8;
+            break;
+        }
+        case 0x5:{
+            /* 0x8xy5 - SUB Vx, Vy */
+            /* SUB Vy from Vx, with borrow result to VF */
+
+            /* NOTE: is it > or >=? Is the reference wrong? */
+            vm->regs[Vf] = (vm->regs[x] > vm->regs[y]) ? 1 : 0;
+            vm->regs[x] -= vm->regs[y];
+            break;
+        }
+        case 0x6:{
+            /* 0x8xy6 - SHR Vx */
+            /* SHR shift Vx right, if the shifted bit was 1 - set VF to 1,
+             * otherwise - to 0 */
+
+            vm->regs[Vf] = vm->regs[x] & 0x1;
+            vm->regs[x] >>= 1;
+            break;
+        }
+        case 0x7:{
+            /* 0x8xy7 - SUBN Vx, Vy */
+            /* SUB Vx from Vy, with borrow result to VF,
+             * otherwise - to 0 */
+
+            vm->regs[Vf] = (vm->regs[y] > vm->regs[x]) ? 1 : 0;
+            vm->regs[x] = vm->regs[y] - vm->regs[x];
+            break;
+        }
+        case 0x8:{
+            /* 0x8xy8 - SHL Vx */
+            /* SHR shift Vx left, if the shifted bit was 1 - set VF to 1,
+             * otherwise - to 0 */
+
+            vm->regs[Vf] = !!(vm->regs[x] & (0x1 << 7));
+            vm->regs[x] <<= 1;
+            break;
+        }
+        default:{
+            fprintf(stderr, "Unknown inner instruction: 0x%04x\n", instruction);
+            exit(EXIT_FAILURE);
+        }
+        }
         break;
     }
     default:{

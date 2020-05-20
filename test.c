@@ -11,7 +11,9 @@ int main(int argc, char *argv[])
     (((0x000f & type) << 12) | ((0x000f & x) << 8) | (0x00ff & kk))
 #define INSTR_XY(type, x, y)                                            \
     (((0x000f & type) << 12) | ((0x000f & x) << 8) | ((0x00ff & y) << 4))
-
+#define INSTR_XY_N(type, x, y, n)                                       \
+    (((0x000f & type) << 12) | ((0x000f & x) << 8) | ((0x00ff & y) << 4) | \
+     (0x000f & n))
     (void) argc; (void) argv;
 
     /* TODO 30 left*/
@@ -158,16 +160,161 @@ int main(int argc, char *argv[])
         vm.regs[V2] = 0x22;
         vm.regs[V3] = 0x33;
 
-        chip8_exec(&vm, INSTR_XY(0x8, V1, V2));
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V2, 0x0));
         assert(vm.regs[V1] == 0x22);
 
-        chip8_exec(&vm, INSTR_XY(0x8, V1, V3));
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V3, 0x0));
         assert(vm.regs[V1] == 0x33);
     }
+
+    {
+        /* OR Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V2] = 0x1;
+        vm.regs[V3] = 0x2;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V2, 0x1));
+        assert(vm.regs[V1] == 0x1);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V3, 0x1));
+        assert(vm.regs[V2] == 0x3);
+    }
+
+    {
+        /* AND Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V2] = 0x1;
+        vm.regs[V3] = 0x3;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V2, 0x2));
+        assert(vm.regs[V1] == 0x0);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V3, 0x2));
+        assert(vm.regs[V2] == 0x1);
+    }
+
+    {
+        /* XOR Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V2] = 0x1;
+        vm.regs[V3] = 0x1;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V2, 0x3));
+        assert(vm.regs[V1] == 0x1);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V3, 0x3));
+        assert(vm.regs[V2] == 0x0);
+    }
+
+    {
+        /* ADD Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x1;
+        vm.regs[V2] = 0x2;
+        vm.regs[V3] = 0x2;
+        vm.regs[V4] = 0xff;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V2, 0x4));
+        assert(vm.regs[V1] == 0x3);
+        assert(!vm.regs[Vf]);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V3, V4, 0x4));
+        assert(vm.regs[V3] == 0x1);
+        assert(vm.regs[Vf]);
+    }
+
+    {
+        /* SUB Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x1;
+        vm.regs[V2] = 0x2;
+        vm.regs[V3] = 0x3;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V3, V1, 0x5));
+        assert(vm.regs[V3] == 0x2);
+        assert(vm.regs[Vf]);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V3, V2, 0x5));
+        assert(vm.regs[V3] == 0x0);
+        assert(!vm.regs[Vf]);
+    }
+
+    {
+        /* SHR Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x3;
+        vm.regs[V2] = 0x2;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V0, 0x6));
+        assert(vm.regs[V1] == 0x1);
+        assert(vm.regs[Vf] == 1);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V0, 0x6));
+        assert(vm.regs[V2] == 0x1);
+        assert(vm.regs[Vf] == 0x0);
+    }
+
+    {
+        /* SUBN Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x1;
+        vm.regs[V2] = 0x3;
+        vm.regs[V3] = 0x3;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V3, 0x7));
+        assert(vm.regs[V1] == 0x2);
+        assert(vm.regs[Vf]);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V3, V2, 0x7));
+        assert(vm.regs[V3] == 0x0);
+        assert(!vm.regs[Vf]);
+    }
+
+    {
+        /* SHL Vx, Vy*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x1;
+        vm.regs[V2] = (0x1 << 7) | 0x1;
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V0, 0x8));
+        assert(vm.regs[V1] == 0x2);
+        assert(vm.regs[Vf] == 0);
+
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V0, 0x8));
+        assert(vm.regs[V2] == 0x2);
+        assert(vm.regs[Vf] == 1);
+    }
+
+    assert(false);
 
     return 0;
 
 #undef INSTR_NNN
 #undef INSTR_XKK
 #undef INSTR_XY
+#undef INSTR_XY_N
 }
