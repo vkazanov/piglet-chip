@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <termio.h>
+#include <time.h>
 
 #include "chip8.h"
 
@@ -102,6 +103,9 @@ int main(int argc, char *argv[])
         perror("read");
         exit(EXIT_FAILURE);
     }
+
+    /* random number generator */
+    srand(time(NULL));
 
     printf("Hello, piglet!\n");
 

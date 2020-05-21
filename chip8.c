@@ -199,6 +199,32 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         }
         break;
     }
+    case 0x9:{
+        /* 0x9xy0 - SNE Vx, Vy */
+        /* Compare Vx, Vy, if not equal - increase PC by 2 */
+        if (vm->regs[x] != vm->regs[y])
+            vm->PC += 2;
+        break;
+    }
+    case 0xa:{
+        /* 0xannn - LD I, nnn */
+        /* Load addr (nnn) into I  */
+        vm->I = nnn;
+        break;
+    }
+    case 0xb:{
+        /* 0xbnnn - JP V0, nnn */
+        /* Jump to V0 + nnn  */
+        vm->PC = vm->regs[V0] + nnn;
+        break;
+    }
+    case 0xc:{
+        /* 0xcxkk - RND Vx, byte */
+        /* Generate a random byte, AND with kk, store in Vx   */
+
+        vm->regs[x] = (rand() % 256) & kk;
+        break;
+    }
     default:{
         fprintf(stderr, "Unknown instruction: 0x%04x\n", instruction);
         exit(EXIT_FAILURE);

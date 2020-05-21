@@ -309,6 +309,61 @@ int main(int argc, char *argv[])
         assert(vm.regs[Vf] == 1);
     }
 
+    {
+        /* SNE Vx, Vy */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V1] = 0x1;
+        vm.regs[V2] = 0x1;
+        vm.regs[V3] = 0x2;
+
+        uint16_t orig_PC = vm.PC;
+
+        chip8_exec(&vm, INSTR_XY(0x9, V1, V2));
+        assert(orig_PC == vm.PC);
+
+        chip8_exec(&vm, INSTR_XY(0x9, V1, V3));
+        assert(orig_PC + 2 == vm.PC);
+    }
+
+    {
+        /* LD I, addr */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.I = 0x1;
+        assert(vm.I == 0x1);
+        chip8_exec(&vm, INSTR_NNN(0xa, 0x2));
+        assert(vm.I == 0x2);
+    }
+
+    {
+        /* JP V0, addr */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V0] = 0x1;
+        chip8_exec(&vm, INSTR_NNN(0xb, 0x2));
+        assert(vm.PC == 0x3);
+    }
+
+    {
+        /* RND Vx, byte */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.regs[V0] = 0x1;
+        chip8_exec(&vm, INSTR_XKK(0xc, V0, 0x00));
+        assert(vm.regs[V0] == 0x0);
+
+        /* NOTE: random generators are hard to test  */
+    }
+
     assert(false);
 
     return 0;
