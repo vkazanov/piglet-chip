@@ -225,6 +225,74 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         vm->regs[x] = (rand() % 256) & kk;
         break;
     }
+    case 0xf:{
+        /* TODO: other instrs */
+
+        switch (kk) {
+        case 0x07:{
+            /* 0xfx07 - LD Vx, DT */
+            /* Load DT into Vx */
+
+            vm->regs[x] = vm->DT;
+            break;
+        }
+        case 0x15:{
+            /* 0xfx15 - LD DT, Vx */
+            /* Load Vx into DT */
+
+            vm->DT = vm->regs[x];
+            break;
+        }
+        case 0x18:{
+            /* 0xfx18 - LD ST, Vx */
+            /* Load Vx into ST */
+
+            vm->ST = vm->regs[x];
+            break;
+        }
+        case 0x1e:{
+            /* 0xfx18 - ADD I, Vx */
+            /* Load I + Vx into I */
+
+            vm->I += vm->regs[x];
+            break;
+        }
+        case 0x33:{
+            /* 0xfx18 - LD B, Vx */
+            /* Load decimal hundeds, tens, ones of Vx into I, I+1, I+2 */
+
+            uint8_t reg_val = vm->regs[x];
+            vm->ram[vm->I] = reg_val / 100;
+            reg_val %= 100;
+            vm->ram[vm->I + 1] = reg_val / 10;
+            reg_val %= 10;
+            vm->ram[vm->I + 2] = reg_val;
+            break;
+        }
+        case 0x55:{
+            /* 0xfx55 - LD [I], Vx */
+            /* Dump registers V0 up to Vx into memory starting with addr I */
+
+            for (uint8_t i = 0; i <= x; ++i)
+                vm->ram[vm->I + i] = vm->regs[i];
+            break;
+        }
+        case 0x65:{
+            /* 0xfx55 - LD Vx, [I] */
+            /* Load registers V0 up to Vx from memory starting with addr I */
+
+            for (uint8_t i = 0; i <= x; ++i)
+                vm->regs[i] = vm->ram[vm->I + i];
+            break;
+        }
+        default:{
+            fprintf(stderr, "Unknown inner instruction: 0x%04x\n", instruction);
+            exit(EXIT_FAILURE);
+        }
+
+        }
+        break;
+    }
     default:{
         fprintf(stderr, "Unknown instruction: 0x%04x\n", instruction);
         exit(EXIT_FAILURE);

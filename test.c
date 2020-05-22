@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
      (0x000f & n))
     (void) argc; (void) argv;
 
-    /* TODO 30 left*/
     {
         /* SYS */
 
@@ -364,7 +363,113 @@ int main(int argc, char *argv[])
         /* NOTE: random generators are hard to test  */
     }
 
-    assert(false);
+    /* TODO: more instrs here*/
+
+    {
+        /* LD Vx, DT */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.DT = 0x11;
+        vm.regs[V1] = 0x10;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x07));
+        assert(vm.regs[V1] == 0x11);
+    }
+
+    /* TODO: more instrs here*/
+
+    {
+        /* LD DT, Vx */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.DT = 0x11;
+        vm.regs[V1] = 0x10;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x15));
+        assert(vm.DT == 0x10);
+    }
+
+    /* TODO: more instrs here*/
+
+    {
+        /* LD ST, Vx */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.ST = 0x11;
+        vm.regs[V1] = 0x10;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x18));
+        assert(vm.ST == 0x10);
+    }
+
+    {
+        /* ADD I, Vx */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.I = 0x11;
+        vm.regs[V1] = 0x2;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x1E));
+        assert(vm.I == 0x13);
+    }
+
+    {
+        /* LD B, Vx*/
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.I = 0x2;
+        vm.regs[V1] = 123;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x33));
+        assert(vm.ram[vm.I] == 0x1);
+        assert(vm.ram[vm.I + 1] == 0x2);
+        assert(vm.ram[vm.I + 2] == 0x3);
+    }
+
+    {
+        /* LD [I], Vx */
+
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.I = 0x2;
+        vm.regs[V1] = 1;
+        vm.regs[V2] = 2;
+        vm.regs[V3] = 3;
+
+        chip8_exec(&vm, INSTR_XKK(0xf, V3, 0x55));
+
+        assert(vm.ram[vm.I] == 0);
+        assert(vm.ram[vm.I + 1] == 1);
+        assert(vm.ram[vm.I + 2] == 2);
+        assert(vm.ram[vm.I + 3] == 3);
+    }
+
+    {
+        /* LD Vx, [I] */
+        chip8 vm;
+        chip8_reset(&vm);
+
+        vm.I = 0x2;
+        vm.ram[vm.I] = 0;
+        vm.ram[vm.I + 1] = 1;
+        vm.ram[vm.I + 2] = 2;
+        vm.ram[vm.I + 3] = 3;
+
+        chip8_exec(&vm, INSTR_XKK(0xf, V3, 0x65));
+
+        assert(vm.regs[V0] == 0);
+        assert(vm.regs[V1] == 1);
+        assert(vm.regs[V2] == 2);
+        assert(vm.regs[V3] == 3);
+
+
+    }
 
     return 0;
 
