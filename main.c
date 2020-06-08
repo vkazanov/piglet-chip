@@ -69,8 +69,6 @@ int main(int argc, char *argv[])
 {
     (void)argc; (void) argv;
 
-    /* TODO: integrate the evdev-based keyboard module */
-    /* TODO: implement the keyboard ops using the module */
     /* TODO: framebuf-related ops */
     /* TODO: preloaded images (numbers and stuff) */
     /* TODO: handle keyboard errors for keyboard errors */
@@ -106,7 +104,6 @@ int main(int argc, char *argv[])
         perror("open");
         exit(EXIT_FAILURE);
     }
-
 
 
     chip8 vm;
