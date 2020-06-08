@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "key-evdev.h"
+
 #define MEMORY_SIZE_BYTES (2 << 11) /* 4K */
 #define PROGRAM_START 0x200
 #define MAX_STACK_DEPTH 16
@@ -51,9 +53,11 @@ typedef struct chip8 {
     uint8_t fb_old[FRAMEBUF_SIZE];
 
     bool is_fb_dirty;
+
+    key_evdev *keyboard;
 } chip8;
 
-void chip8_reset(chip8 *vm);
+void chip8_reset(chip8 *vm, key_evdev *keyboard);
 
 uint16_t chip8_fetch(chip8 *vm);
 

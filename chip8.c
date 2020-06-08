@@ -2,12 +2,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 
-void chip8_reset(chip8 *vm)
+void chip8_reset(chip8 *vm, key_evdev *keyboard)
 {
     *vm = (chip8){0};
     vm->PC = PROGRAM_START;
+    vm->keyboard = keyboard;
+    assert(KEY_EVDEV_SUCCESS == key_evdev_flush(vm->keyboard));
 }
 
 uint16_t chip8_fetch(chip8 *vm)
@@ -32,7 +35,6 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
     uint16_t kk = (0x00FF & instruction);
     uint16_t n = (0x000F & instruction);
 
-    /* TODO: The super switch */
     switch (type) {
     case 0x0:{
         switch (nnn) {
@@ -225,15 +227,54 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         vm->regs[x] = (rand() % 256) & kk;
         break;
     }
+    case 0xd:{
+        /* TODO:  */
+        assert(false);
+    }
+    case 0xe:{
+        switch (kk) {
+        case 0x9e:{
+            /* 0xex9e - SKP Vx */
+            /* Skip next instruction if key in Vx is currently pressed */
+            bool is_pressed = false;
+            key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
+            if (is_pressed)
+                vm->PC += 2;
+            printf(is_pressed ? "pressed\n" : "not pressed\n");
+            break;
+        }
+        case 0xa1:{
+            /* 0xexa1 - SKNP Vx */
+            /* Skep next instruction if key in Vx is currently NOT pressed */
+            bool is_pressed = false;
+            key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
+            if (!is_pressed)
+                vm->PC += 2;
+            printf(is_pressed ? "pressed\n" : "not pressed\n");
+            break;
+        }
+        default:
+            fprintf(stderr, "Unknown inner instruction: 0x%04x\n", instruction);
+            exit(EXIT_FAILURE);
+        }
+        break;
+    }
     case 0xf:{
-        /* TODO: other instrs */
-
         switch (kk) {
         case 0x07:{
             /* 0xfx07 - LD Vx, DT */
             /* Load DT into Vx */
 
             vm->regs[x] = vm->DT;
+            break;
+        }
+        case 0x0a:{
+            /* 0xfx0a - LD Vx, K */
+            /* Wait for a key press, store the value in Vx */
+
+            int key_pressed = 0x0;
+            key_evdev_wait_for_key(vm->keyboard, &key_pressed);
+            vm->regs[x] = key_pressed;
             break;
         }
         case 0x15:{
