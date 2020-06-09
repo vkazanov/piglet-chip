@@ -27,6 +27,7 @@ void fb_new(fb_console **fb)
 
 void fb_redraw(fb_console *fb)
 {
+    write(fileno(stdin), "\033c", 4);
     for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
         for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
             size_t idx = row * FRAMEBUF_WIDTH + col;
@@ -49,13 +50,7 @@ void fb_redraw(fb_console *fb)
 
 void fb_clear(fb_console *fb)
 {
-    (void) fb;
-
-    write(fileno(stdin), "\033c", 4);
-    for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
-        for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
-            putchar(' ');
-        }
-        putchar('\n');
-    }
+    memset(fb->fb, 0, FRAMEBUF_SIZE);
+    memset(fb->fb_old, 0, FRAMEBUF_SIZE);
+    fb->is_dirty = true;
 }

@@ -13,7 +13,7 @@ typedef struct fb_console {
     uint8_t fb[FRAMEBUF_SIZE];
     uint8_t fb_old[FRAMEBUF_SIZE];
 
-    bool is_fb_dirty;
+    bool is_dirty;
 
 } fb_console;
 

@@ -59,4 +59,6 @@ void chip8_bump_PC(chip8 *vm);
 
 void chip8_exec(chip8 *vm, uint16_t instruction);
 
+void chip8_maybe_redraw(chip8 *vm);
+
 #endif /* CHIP8_H */

@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     key_evdev *keyboard = NULL;
     assert(KEY_EVDEV_SUCCESS == key_evdev_new("/dev/input/event6", &keyboard));
 
+    /* TODO: err code checks */
     fb_console *display = NULL;
     fb_new(&display);
 
@@ -41,7 +42,17 @@ int main(int argc, char *argv[])
         assert(0 == memcmp(&vm1, &vm2, sizeof(chip8)));
     }
 
-    /* TODO: CLS */
+    {
+        /* CLS */
+
+        chip8 vm;
+        chip8_reset(&vm, keyboard, display);
+
+        printf("clear screen in 1s...\n");
+        sleep(1);
+        chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
+        chip8_maybe_redraw(&vm);
+    }
 
     {
         /* RET */

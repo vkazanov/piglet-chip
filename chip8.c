@@ -42,7 +42,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* 00e0 - CLS */
             /* Clear screen */
 
-            /* TODO */
+            fb_clear(vm->display);
             break;
         }
         case 0x0ee:{
@@ -339,4 +339,11 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         exit(EXIT_FAILURE);
     }
     }
+}
+
+
+void chip8_maybe_redraw(chip8 *vm)
+{
+    if (vm->display->is_dirty)
+        fb_redraw(vm->display);
 }
