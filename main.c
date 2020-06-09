@@ -7,59 +7,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <termio.h>
 #include <time.h>
 
 #include "chip8.h"
 
-void fb_redraw(chip8 *vm)
-{
-    for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
-        for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
-            size_t idx = row * FRAMEBUF_WIDTH + col;
-            uint8_t pixel = vm->fb[idx];
-            uint8_t pixel_old = vm->fb_old[idx];
-            if (pixel != pixel_old) {
-                if (pixel == 0) {
-                    putchar(' ');
-                } else {
-                    putchar('O');
-                }
-            }
-        }
-        putchar('\n');
-    }
-
-    memcpy(vm->fb_old, vm->fb, sizeof(vm->fb));
-}
-
-void fb_init(void)
-{
-    /* TODO: extract an IO handling module */
-    struct termios orig_term_attr;
-    struct termios new_term_attr;
-    /* TODO: error checking */
-    tcgetattr(fileno(stdin), &orig_term_attr);
-
-    memcpy(&new_term_attr, &orig_term_attr, sizeof(struct termios));
-    new_term_attr.c_lflag &= ~(ECHO|ICANON);
-    new_term_attr.c_cc[VTIME] = 0;
-    new_term_attr.c_cc[VMIN] = 0;
-
-    /* TODO: error checking */
-    tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
-}
-
-void fb_clear(void)
-{
-    write(fileno(stdin), "\033c", 4);
-    for (size_t row = 0; row < FRAMEBUF_HEIGHT; row++) {
-        for (size_t col = 0; col < FRAMEBUF_WIDTH; col++) {
-            putchar(' ');
-        }
-        putchar('\n');
-    }
-}
 
 void step(uint16_t instruction)
 {

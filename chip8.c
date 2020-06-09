@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
-void chip8_reset(chip8 *vm, key_evdev *keyboard)
+void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display)
 {
     *vm = (chip8){0};
     vm->PC = PROGRAM_START;
     vm->keyboard = keyboard;
+    vm->display = display;
     assert(KEY_EVDEV_SUCCESS == key_evdev_flush(vm->keyboard));
 }
 

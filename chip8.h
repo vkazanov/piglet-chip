@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "key-evdev.h"
+#include "fb-console.h"
 
 #define MEMORY_SIZE_BYTES (2 << 11) /* 4K */
 #define PROGRAM_START 0x200
@@ -12,9 +13,6 @@
 /* #define FREQUENCY 10      /\* Hz *\/ */
 #define FREQUENCY 60      /* Hz */
 #define USECONDS_PER_STEP (1000000 / FREQUENCY) /* Seconds per step */
-#define FRAMEBUF_HEIGHT 64
-#define FRAMEBUF_WIDTH 32
-#define FRAMEBUF_SIZE (FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH)
 
 enum {
     RUNNING,
@@ -48,16 +46,12 @@ typedef struct chip8 {
     /* Memory */
     uint8_t ram[MEMORY_SIZE_BYTES];
 
-    /* Framebuffer, previous and new */
-    uint8_t fb[FRAMEBUF_SIZE];
-    uint8_t fb_old[FRAMEBUF_SIZE];
-
-    bool is_fb_dirty;
-
+    /* IO */
+    fb_console *display;
     key_evdev *keyboard;
 } chip8;
 
-void chip8_reset(chip8 *vm, key_evdev *keyboard);
+void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display);
 
 uint16_t chip8_fetch(chip8 *vm);
 
