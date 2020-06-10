@@ -228,8 +228,16 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         break;
     }
     case 0xd:{
-        /* TODO:  */
-        assert(false);
+        /* TODO: draw sprite */
+        /* TODO: collision check */
+        /* TODO: wrap around */
+
+        /* 0xdxyn - DRW Vx, Vy, nibble */
+        /* Display n-byte sprite starting at memory I to location Vx, Vy, while
+         * also setting VF to collision check result */
+
+        fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y]);
+        break;
     }
     case 0xe:{
         switch (kk) {

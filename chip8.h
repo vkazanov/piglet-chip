@@ -7,7 +7,7 @@
 #include "key-evdev.h"
 #include "fb-console.h"
 
-#define MEMORY_SIZE_BYTES (2 << 11) /* 4K */
+#define MEMORY_SIZE_BYTES (1 << 12) /* 4K */
 #define PROGRAM_START 0x200
 #define MAX_STACK_DEPTH 16
 /* #define FREQUENCY 10      /\* Hz *\/ */

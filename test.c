@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
     setbuf(stdout, NULL);
 
     key_evdev *keyboard = NULL;
-    assert(KEY_EVDEV_SUCCESS == key_evdev_new("/dev/input/event6", &keyboard));
+    /* TODO: keyboard device files do change on reboots  */
+    int rc = key_evdev_new("/dev/input/event7", &keyboard);
+    assert(KEY_EVDEV_SUCCESS == rc);
 
     /* TODO: err code checks */
     fb_console *display = NULL;
@@ -383,7 +385,33 @@ int main(int argc, char *argv[])
         /* NOTE: random generators are hard to test  */
     }
 
-    /* TODO: DRW Vx, Vy, nibble */
+    {
+        /* TODO: DRW Vx, Vy, nibble */
+
+        chip8 vm;
+        chip8_reset(&vm, keyboard, display);
+        size_t addr = (1 << 11); /* addr 2048 */
+        vm.I = addr;
+
+        vm.ram[addr] = 0xff;
+        vm.ram[addr + 1] = 0xff;
+        vm.ram[addr + 2] = 0xff;
+        vm.ram[addr + 3] = 0xff;
+
+        vm.regs[V0] = 0x1;      /* x */
+        vm.regs[V1] = 0x2;      /* y */
+
+        printf("drawing a line...\n");
+        sleep(1);
+        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x4));
+
+        printf("updating the screen...\n");
+        sleep(1);
+
+        chip8_maybe_redraw(&vm);
+        sleep(4);
+    }
+    return 0;
 
     {
         /* SKP Vx  */
@@ -529,6 +557,9 @@ int main(int argc, char *argv[])
 
 
     }
+
+    fb_free(display);
+    key_evdev_free(keyboard);
 
     return 0;
 
