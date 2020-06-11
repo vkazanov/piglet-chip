@@ -526,6 +526,21 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x2;
         chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x29));
         assert(vm.I == 5 * 2);
+
+        printf("preloaded sprites...");
+        sleep(1);
+
+        vm.regs[V0] = 16;      /* x */
+        vm.regs[V1] = 16;      /* y */
+
+        for (size_t i = 0; i <= 0xf; i++ ) {
+            vm.regs[V2] = i;
+            chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x29)); /* load address */
+            chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));   /* CLS */
+            chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5)); /* draw  */
+            chip8_maybe_redraw(&vm);
+            sleep(1);
+        }
     }
 
     return 0;
