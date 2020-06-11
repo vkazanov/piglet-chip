@@ -336,11 +336,17 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             break;
         }
         case 0x29:{
-            /* TODO: 0xfx29 - LD F, Vx */
+            /* 0xfx29 - LD F, Vx */
+            /* Load location of digit Vx into I */
+
+            assert(vm->regs[x] < 16);
+
+            vm->I = vm->regs[x] * 5;
+            break;
         }
         case 0x33:{
             /* 0xfx18 - LD B, Vx */
-            /* Load decimal hundeds, tens, ones of Vx into I, I+1, I+2 */
+            /* Load decimal hundreds, tens, ones of Vx into I, I+1, I+2 */
 
             uint8_t reg_val = vm->regs[x];
             vm->ram[vm->I] = reg_val / 100;

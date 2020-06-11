@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
         chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x4));
         chip8_maybe_redraw(&vm);
         printf("custom sprite...");
-        sleep(4);
+        sleep(1);
 
         vm.I = 0x0;             /* num addr */
         vm.regs[V0] = 32;      /* x */
@@ -517,7 +517,18 @@ int main(int argc, char *argv[])
         assert(vm.I == 0x13);
     }
 
-    /* TODO: LD F, Vx */
+    {
+        /* LD F, Vx */
+        chip8 vm;
+        chip8_reset(&vm, keyboard, display);
+
+        vm.I = 0x11;
+        vm.regs[V1] = 0x2;
+        chip8_exec(&vm, INSTR_XKK(0xf, V1, 0x29));
+        assert(vm.I == 5 * 2);
+    }
+
+    return 0;
 
     {
         /* LD B, Vx*/
