@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
+    /* TODO: sound */
     /* TODO: main interpreter loop */
 
     if (argc != 3){

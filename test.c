@@ -407,40 +407,55 @@ int main(int argc, char *argv[])
         printf("custom sprite...");
         sleep(1);
 
-        vm.I = 0x0;             /* num addr */
         vm.regs[V0] = 32;      /* x */
         vm.regs[V1] = 16;      /* y */
-        chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0)); /* CLS */
-        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
-        chip8_maybe_redraw(&vm);
-
-        printf("preloaded sprites...");
-        sleep(1);
-
         for (size_t i = 0; i < 16; i++ ) {
             vm.I = i * 5;
             chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
             chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
             chip8_maybe_redraw(&vm);
+            printf("preloaded sprites...");
+            sleep(1);
+        }
+
+        vm.regs[V0] = 32;      /* x */
+        vm.regs[V1] = 16;     /* y */
+        vm.I = 0;
+        for (size_t i = 0; i < 10; i++) {
+            vm.regs[V0] += 5;
+            chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
+            chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
+            chip8_maybe_redraw(&vm);
+            printf("moving sprites horizontally...");
+            sleep(1);
+        }
+
+        vm.regs[V0] = 16;       /* x */
+        vm.regs[V1] = 16;       /* y */
+        vm.I = 0;
+        for (size_t i = 0; i < 10; i++) {
+            vm.regs[V1] += 5;
+            chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
+            chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
+            chip8_maybe_redraw(&vm);
+            printf("moving sprites vertically...");
             sleep(1);
         }
     }
 
-    return 0;
-
     {
         /* SKP Vx  */
-            chip8 vm;
-            chip8_reset(&vm, keyboard, display);
+        chip8 vm;
+        chip8_reset(&vm, keyboard, display);
 
-            printf("keep pressing 1 to make this test pass...\n");
-            sleep(2);
+        printf("keep pressing 1 to make this test pass...\n");
+        sleep(2);
 
-            vm.PC = 0x1;
-            vm.regs[V1] = 0x1;
-            chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
-            assert(vm.PC == 0x3);
-        }
+        vm.PC = 0x1;
+        vm.regs[V1] = 0x1;
+        chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
+        assert(vm.PC == 0x3);
+    }
 
     /* SKNP Vx  */
     {
@@ -542,8 +557,6 @@ int main(int argc, char *argv[])
             sleep(1);
         }
     }
-
-    return 0;
 
     {
         /* LD B, Vx*/

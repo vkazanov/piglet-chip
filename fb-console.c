@@ -38,7 +38,12 @@ void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, u
 
     for (size_t byt = 0; byt < bytes; byt++ ) {
         for (size_t bt = 0; bt < 8; bt++) {
-            size_t fb_idx = (y + byt) * FRAMEBUF_WIDTH + (x + 7u - bt);
+            /* make sure sprites wrap around */
+            uint8_t target_y = (y + byt) % FRAMEBUF_HEIGHT;
+            uint8_t target_x = (x + (7u - bt)) % FRAMEBUF_WIDTH;
+
+            /* get the final index */
+            size_t fb_idx = target_y * FRAMEBUF_WIDTH + target_x;
 
             fb->fb[fb_idx] = source[byt] & (1 << bt);
         }
