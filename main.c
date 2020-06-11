@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
     (void)argc; (void) argv;
 
     /* TODO: framebuf-related ops */
-    /* TODO: preloaded images (numbers and stuff) */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */

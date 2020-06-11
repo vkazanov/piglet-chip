@@ -393,39 +393,54 @@ int main(int argc, char *argv[])
         size_t addr = (1 << 11); /* addr 2048 */
         vm.I = addr;
 
-        vm.ram[addr] = 0xff;
+        vm.ram[addr] = 0x0f;
         vm.ram[addr + 1] = 0xff;
         vm.ram[addr + 2] = 0xff;
-        vm.ram[addr + 3] = 0xff;
+        vm.ram[addr + 3] = 0xf0;
 
         vm.regs[V0] = 0x1;      /* x */
         vm.regs[V1] = 0x2;      /* y */
 
-        printf("drawing a line...\n");
         sleep(1);
         chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x4));
+        chip8_maybe_redraw(&vm);
+        printf("custom sprite...");
+        sleep(4);
 
-        printf("updating the screen...\n");
+        vm.I = 0x0;             /* num addr */
+        vm.regs[V0] = 32;      /* x */
+        vm.regs[V1] = 16;      /* y */
+        chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0)); /* CLS */
+        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
+        chip8_maybe_redraw(&vm);
+
+        printf("preloaded sprites...");
         sleep(1);
 
-        chip8_maybe_redraw(&vm);
-        sleep(4);
+        for (size_t i = 0; i < 16; i++ ) {
+            vm.I = i * 5;
+            chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
+            chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
+            chip8_maybe_redraw(&vm);
+            sleep(1);
+        }
     }
+
     return 0;
 
     {
         /* SKP Vx  */
-        chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+            chip8 vm;
+            chip8_reset(&vm, keyboard, display);
 
-        printf("keep pressing 1 to make this test pass...\n");
-        sleep(2);
+            printf("keep pressing 1 to make this test pass...\n");
+            sleep(2);
 
-        vm.PC = 0x1;
-        vm.regs[V1] = 0x1;
-        chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
-        assert(vm.PC == 0x3);
-    }
+            vm.PC = 0x1;
+            vm.regs[V1] = 0x1;
+            chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
+            assert(vm.PC == 0x3);
+        }
 
     /* SKNP Vx  */
     {
