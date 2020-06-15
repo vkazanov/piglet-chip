@@ -22,7 +22,7 @@ void fb_new(fb_console **fb);
 
 void fb_free(fb_console *fb);
 
-void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, uint8_t y);
+void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, uint8_t y, bool *is_pixel_erased);
 
 /* TODO: bad naming, should be something like refresh */
 void fb_redraw(fb_console *fb);

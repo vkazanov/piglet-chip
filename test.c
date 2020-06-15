@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     key_evdev *keyboard = NULL;
     /* TODO: keyboard device files do change on reboots  */
-    int rc = key_evdev_new("/dev/input/event7", &keyboard);
+    int rc = key_evdev_new("/dev/input/event6", &keyboard);
     assert(KEY_EVDEV_SUCCESS == rc);
 
     /* TODO: err code checks */
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
     }
 
     {
-        /* TODO: DRW Vx, Vy, nibble */
+        /* DRW Vx, Vy, nibble */
 
         chip8 vm;
         chip8_reset(&vm, keyboard, display);
@@ -401,10 +401,35 @@ int main(int argc, char *argv[])
         vm.regs[V0] = 0x1;      /* x */
         vm.regs[V1] = 0x2;      /* y */
 
-        sleep(1);
-        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x4));
+        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
         chip8_maybe_redraw(&vm);
-        printf("custom sprite...");
+
+        printf("just a random sprite...");
+        assert(!vm.regs[Vf]);    /* a pixel was NOT erased */
+        sleep(1);
+
+        vm.ram[addr] = 0xff;
+        vm.ram[addr + 1] = 0xff;
+        vm.ram[addr + 2] = 0xff;
+        vm.ram[addr + 3] = 0xff;
+
+        vm.regs[V0] = 4;      /* x */
+        vm.regs[V1] = 4;      /* y */
+
+        chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
+        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
+
+        chip8_maybe_redraw(&vm);
+        printf("to be overlapped...");
+        sleep(1);
+
+        vm.regs[V0] += 4;      /* x */
+        vm.regs[V1] += 2;      /* y */
+        chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
+        chip8_maybe_redraw(&vm);
+
+        printf("overlap");
+        assert(vm.regs[Vf]);    /* a pixel was erased */
         sleep(1);
 
         vm.regs[V0] = 32;      /* x */

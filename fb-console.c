@@ -32,9 +32,11 @@ void fb_free(fb_console *fb)
     free(fb);
 }
 
-void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, uint8_t y)
+void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, uint8_t y, bool *is_pixel_erased)
 {
     assert(bytes <= SPRITE_MAX_SIZE);
+
+    *is_pixel_erased = false;
 
     for (size_t byt = 0; byt < bytes; byt++ ) {
         for (size_t bt = 0; bt < 8; bt++) {
@@ -42,10 +44,17 @@ void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, u
             uint8_t target_y = (y + byt) % FRAMEBUF_HEIGHT;
             uint8_t target_x = (x + (7u - bt)) % FRAMEBUF_WIDTH;
 
-            /* get the final index */
+            /* get the final pixel index */
             size_t fb_idx = target_y * FRAMEBUF_WIDTH + target_x;
 
-            fb->fb[fb_idx] = source[byt] & (1 << bt);
+            /* XOR the pixel onto the screen */
+            uint8_t sprite_pixel = !!(source[byt] & (1 << bt));
+            uint8_t target_pixel = !!(fb->fb[fb_idx]);
+            fb->fb[fb_idx] = sprite_pixel ^ target_pixel;
+
+            /* Check if a pixel was erased */
+            if (target_pixel && !fb->fb[fb_idx])
+                *is_pixel_erased = true;
         }
     }
 
@@ -54,6 +63,11 @@ void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, u
 
 void fb_redraw(fb_console *fb)
 {
+    if (!fb->is_dirty)
+        return;
+    fb->is_dirty = false;
+
+
     write(fileno(stdout), "\033c", 4);
 
     putchar('*');
@@ -67,23 +81,10 @@ void fb_redraw(fb_console *fb)
         for (size_t x = 0; x < FRAMEBUF_WIDTH; x++) {
             size_t idx = y * FRAMEBUF_WIDTH + x;
             uint8_t pixel = fb->fb[idx];
-            uint8_t pixel_old = fb->fb_old[idx];
-            /* printf("%zu %zu -> %d\n", x, y, pixel); */
-            /* if (pixel) */
-            /*     putchar('0'); */
-            /* else */
-            /*     putchar(' '); */
-            if (pixel != pixel_old) {
-                if (pixel == 0) {
-                    /* printf("pixel not set"); */
-                    putchar(' ');
-                } else {
-                    putchar('0');
-                    /* printf("found a pixel set"); */
-                }
-            } else {
+            if (pixel)
+                putchar('0');
+            else
                 putchar(' ');
-            }
         }
         putchar('|');
         putchar('\n');
@@ -94,14 +95,13 @@ void fb_redraw(fb_console *fb)
     putchar('*');
     putchar('\n');
 
-    memcpy(fb->fb_old, fb->fb, sizeof(fb->fb));
-    memset(fb->fb, 0, FRAMEBUF_SIZE);
+    fb->is_dirty = false;
 }
 
 
 void fb_clear(fb_console *fb)
 {
     memset(fb->fb, 0, FRAMEBUF_SIZE);
-    memset(fb->fb_old, 0, FRAMEBUF_SIZE);
+
     fb->is_dirty = true;
 }

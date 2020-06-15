@@ -257,13 +257,15 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         break;
     }
     case 0xd:{
-        /* TODO: collision check */
-
         /* 0xdxyn - DRW Vx, Vy, nibble */
         /* Display n-byte sprite starting at memory I to location Vx, Vy, while
          * also setting VF to collision check result */
 
-        fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y]);
+        bool is_pixel_erased = false;
+        fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y], &is_pixel_erased);
+        if (is_pixel_erased)
+            vm->regs[Vf] = is_pixel_erased;
+
         break;
     }
     case 0xe:{
@@ -388,6 +390,5 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 
 void chip8_maybe_redraw(chip8 *vm)
 {
-    if (vm->display->is_dirty)
-        fb_redraw(vm->display);
+    fb_redraw(vm->display);
 }
