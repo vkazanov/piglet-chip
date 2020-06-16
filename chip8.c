@@ -10,7 +10,7 @@ static void load_sprites(chip8 *vm);
 void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display)
 {
     *vm = (chip8){0};
-    vm->PC = PROGRAM_START;
+    vm->PC = PROGRAM_START_BYTES;
     vm->keyboard = keyboard;
     vm->display = display;
     assert(KEY_EVDEV_SUCCESS == key_evdev_flush(vm->keyboard));
@@ -395,4 +395,17 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 void chip8_redraw(chip8 *vm)
 {
     fb_redraw(vm->display);
+}
+
+void chip8_tick_timers(chip8 *vm)
+{
+    /* decrease the timer */
+    if (vm->DT) {
+        vm->DT -= 1;
+    }
+
+    /* decrease the sound timer */
+    if (vm->ST) {
+        vm->ST -= 1;
+    }
 }

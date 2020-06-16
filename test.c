@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         chip8 vm;
         chip8_reset(&vm, keyboard, display);
 
-        assert(vm.PC == PROGRAM_START);
+        assert(vm.PC == PROGRAM_START_BYTES);
 
         chip8_exec(&vm, INSTR_NNN(0x1, 0x0111));
 
@@ -90,12 +90,12 @@ int main(int argc, char *argv[])
         chip8_reset(&vm, keyboard, display);
 
         assert(vm.stack[0] == 0);
-        assert(vm.PC == PROGRAM_START);
+        assert(vm.PC == PROGRAM_START_BYTES);
         assert(vm.SP == 0);
 
         chip8_exec(&vm, INSTR_NNN(0x2, 0x0111));
 
-        assert(vm.stack[0] == PROGRAM_START);
+        assert(vm.stack[0] == PROGRAM_START_BYTES);
         assert(vm.PC == 0x0111);
         assert(vm.SP == 1);
     }
@@ -109,10 +109,10 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x11;
 
         chip8_exec(&vm, INSTR_XKK(0x3, V1, 0x22));
-        assert(vm.PC == PROGRAM_START);
+        assert(vm.PC == PROGRAM_START_BYTES);
 
         chip8_exec(&vm, INSTR_XKK(0x3, V1, 0x11));
-        assert(vm.PC == PROGRAM_START + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
     }
 
     {
@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x11;
 
         chip8_exec(&vm, INSTR_XKK(0x4, V1, 0x11));
-        assert(vm.PC == PROGRAM_START);
+        assert(vm.PC == PROGRAM_START_BYTES);
 
         chip8_exec(&vm, INSTR_XKK(0x4, V1, 0x22));
-        assert(vm.PC == PROGRAM_START + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
     }
 
     {
@@ -141,10 +141,10 @@ int main(int argc, char *argv[])
         vm.regs[V3] = 0x22;
 
         chip8_exec(&vm, INSTR_XY(0x5, V1, V3));
-        assert(vm.PC == PROGRAM_START);
+        assert(vm.PC == PROGRAM_START_BYTES);
 
         chip8_exec(&vm, INSTR_XY(0x5, V1, V2));
-        assert(vm.PC == PROGRAM_START + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
     }
 
     {

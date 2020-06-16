@@ -8,7 +8,8 @@
 #include "fb-console.h"
 
 #define MEMORY_SIZE_BYTES (1 << 12) /* 4K */
-#define PROGRAM_START 0x200
+#define PROGRAM_START_BYTES (0x200)   /* 512 */
+#define MAX_ROM_SIZE_BYTES (MEMORY_SIZE_BYTES - PROGRAM_START_BYTES)
 #define MAX_STACK_DEPTH 16
 /* #define FREQUENCY 10      /\* Hz *\/ */
 #define FREQUENCY 60      /* Hz */
@@ -58,5 +59,7 @@ uint16_t chip8_fetch(chip8 *vm);
 void chip8_exec(chip8 *vm, uint16_t instruction);
 
 void chip8_redraw(chip8 *vm);
+
+void chip8_tick_timers(chip8 *vm);
 
 #endif /* CHIP8_H */

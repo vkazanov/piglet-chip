@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 {
     (void)argc; (void) argv;
 
-    /* TODO: rom loading */
+    /* TODO: instruction logging */
+    /* TODO: fix test game BLINKY */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
@@ -24,7 +25,6 @@ int main(int argc, char *argv[])
     /* TODO: main loop: fix the timers */
     /* TODO: main loop: fix the running state (do i need it at all?)  */
     /* TODO: main loop: add pause  */
-    /* TODO: instruction loggin */
     /* TODO: sound */
 
     if (argc != 3){
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (sb.st_size > MEMORY_SIZE_BYTES) {
+    if (sb.st_size > MAX_ROM_SIZE_BYTES) {
         fprintf(stderr, "Too big to load:  %s\n", rom_path);
         exit(EXIT_FAILURE);
     }
@@ -70,7 +70,9 @@ int main(int argc, char *argv[])
 
     chip8 vm;
     chip8_reset(&vm, keyboard, display);
-    if (read(rom_fd, vm.ram, MEMORY_SIZE_BYTES) < 0) {
+
+    ssize_t bytes_read = read(rom_fd, vm.ram + PROGRAM_START_BYTES, (size_t)sb.st_size);
+    if (bytes_read != sb.st_size) {
         perror("read");
         exit(EXIT_FAILURE);
     }
@@ -80,7 +82,6 @@ int main(int argc, char *argv[])
 
     /* main loop */
     while (state == RUNNING) {
-        /* (void)write(STDOUT_FILENO, "tick\n", 5); */
 
         struct timeval start_time, end_time;
         gettimeofday(&(start_time), NULL);
@@ -91,18 +92,7 @@ int main(int argc, char *argv[])
         uint16_t instruction = chip8_fetch(&vm);
         chip8_exec(&vm, instruction);
         chip8_redraw(&vm);
-
-        /* TODO: should be a step */
-        /* decrease the timer */
-        if (vm.DT > 0) {
-            vm.DT -= 1;
-        }
-
-        /* decrease the sound timer */
-        if (vm.ST > 0) {
-            vm.ST -= 1;
-            /* TODO: Play sound */
-        }
+        chip8_tick_timers(&vm);
 
         gettimeofday(&(end_time), NULL);
         useconds_t step_took_useconds =
