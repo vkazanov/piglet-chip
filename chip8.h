@@ -55,8 +55,6 @@ void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display);
 
 uint16_t chip8_fetch(chip8 *vm);
 
-void chip8_bump_PC(chip8 *vm);
-
 void chip8_exec(chip8 *vm, uint16_t instruction);
 
 void chip8_redraw(chip8 *vm);

@@ -50,11 +50,6 @@ uint16_t chip8_fetch(chip8 *vm)
     return instruction;
 }
 
-void chip8_bump_PC(chip8 *vm)
-{
-    vm->PC += 2;
-}
-
 void chip8_exec(chip8 *vm, uint16_t instruction)
 {
     uint16_t type = (0xF000 & instruction) >> 12;
@@ -63,6 +58,8 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
     uint16_t nnn = (0x0FFF & instruction);
     uint16_t kk = (0x00FF & instruction);
     uint16_t n = (0x000F & instruction);
+
+    bool do_step = true;
 
     switch (type) {
     case 0x0:{
@@ -80,6 +77,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 
             vm->SP--;
             vm->PC = vm->stack[vm->SP];
+            do_step = false;
             break;
         }
         default:{
@@ -96,6 +94,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* Jump to addr */
 
         vm->PC = nnn;
+        do_step = false;
         break;
     }
     case 0x2:{
@@ -105,6 +104,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         vm->stack[vm->SP] = vm->PC;
         vm->SP++;
         vm->PC = nnn;
+        do_step = false;
         break;
     }
     case 0x3:{
@@ -247,6 +247,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0xbnnn - JP V0, nnn */
         /* Jump to V0 + nnn  */
         vm->PC = vm->regs[V0] + nnn;
+        do_step = false;
         break;
     }
     case 0xc:{
@@ -385,6 +386,9 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         exit(EXIT_FAILURE);
     }
     }
+
+    if (do_step)
+        vm->PC += 2;
 }
 
 

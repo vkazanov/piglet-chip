@@ -16,11 +16,15 @@ int main(int argc, char *argv[])
 {
     (void)argc; (void) argv;
 
+    /* TODO: rom loading */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
     /* TODO: main loop: fix the loop itself */
     /* TODO: main loop: fix the timers */
+    /* TODO: main loop: fix the running state (do i need it at all?)  */
+    /* TODO: main loop: add pause  */
+    /* TODO: instruction loggin */
     /* TODO: sound */
 
     if (argc != 3){
@@ -81,13 +85,12 @@ int main(int argc, char *argv[])
         struct timeval start_time, end_time;
         gettimeofday(&(start_time), NULL);
 
-        /* /\* TODO: tmp *\/ */
+        /* TMP: */
         /* usleep(1000); */
 
         uint16_t instruction = chip8_fetch(&vm);
         chip8_exec(&vm, instruction);
         chip8_redraw(&vm);
-        chip8_bump_PC(&vm);
 
         /* TODO: should be a step */
         /* decrease the timer */
@@ -100,9 +103,6 @@ int main(int argc, char *argv[])
             vm.ST -= 1;
             /* TODO: Play sound */
         }
-
-        /* TODO: log */
-        /* TODO: exec */
 
         gettimeofday(&(end_time), NULL);
         useconds_t step_took_useconds =
