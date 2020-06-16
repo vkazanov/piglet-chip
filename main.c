@@ -12,20 +12,16 @@
 #include "chip8.h"
 
 
-void step(uint16_t instruction)
-{
-}
-
 int main(int argc, char *argv[])
 {
     (void)argc; (void) argv;
 
-    /* TODO: framebuf-related ops */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
+    /* TODO: main loop: fix the loop itself */
+    /* TODO: main loop: fix the timers */
     /* TODO: sound */
-    /* TODO: main interpreter loop */
 
     if (argc != 3){
         fprintf(stderr, "Usage: %s <path/to/rom> <path/to/keyboard/dev>\n", argv[0]);
@@ -41,7 +37,7 @@ int main(int argc, char *argv[])
     }
 
     if ((sb.st_mode & S_IFMT) != S_IFREG) {
-        fprintf(stderr, "File expected: %s\n", rom_path);
+        fprintf(stderr, "ROM file expected: %s\n", rom_path);
         exit(EXIT_FAILURE);
     }
 
@@ -56,21 +52,27 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    key_evdev *keyboard = NULL;
+    int rc = key_evdev_new(keyboard_path, &keyboard);
+    if (KEY_EVDEV_SUCCESS != rc) {
+        fprintf(stderr, "Failed to init keyboard:  %s\n", keyboard_path);
+        exit(EXIT_FAILURE);
+    }
+
+    /* TODO: err code checks */
+    fb_console *display = NULL;
+    fb_new(&display);
+
 
     chip8 vm;
-    chip8_reset(&vm);
+    chip8_reset(&vm, keyboard, display);
     if (read(rom_fd, vm.ram, MEMORY_SIZE_BYTES) < 0) {
         perror("read");
         exit(EXIT_FAILURE);
     }
 
-    /* random number generator */
+    /* TODO: move random number generator into reset code */
     srand(time(NULL));
-
-    printf("Hello, piglet!\n");
-
-    fb_init();
-    fb_clear();
 
     /* main loop */
     while (state == RUNNING) {
@@ -79,11 +81,12 @@ int main(int argc, char *argv[])
         struct timeval start_time, end_time;
         gettimeofday(&(start_time), NULL);
 
-        /* TODO: tmp */
-        usleep(1000);
+        /* /\* TODO: tmp *\/ */
+        /* usleep(1000); */
 
         uint16_t instruction = chip8_fetch(&vm);
         chip8_exec(&vm, instruction);
+        chip8_redraw(&vm);
         chip8_bump_PC(&vm);
 
         /* TODO: should be a step */
@@ -98,17 +101,6 @@ int main(int argc, char *argv[])
             /* TODO: Play sound */
         }
 
-        /* refresh the image */
-        if (vm.is_fb_dirty) {
-            fb_redraw(&vm);
-            vm.is_fb_dirty = false;
-        }
-
-        /* read input */
-        int c = fgetc(stdin);
-        if (c != EOF)
-            fputc(c,stdout);
-
         /* TODO: log */
         /* TODO: exec */
 
@@ -121,6 +113,8 @@ int main(int argc, char *argv[])
         /* printf("time to sleep: %d usec\n", USECONDS_PER_STEP - step_took_useconds); */
         usleep(USECONDS_PER_STEP - step_took_useconds);
     }
+
+    /* TODO: deinit things */
 
     return 0;
 }

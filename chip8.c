@@ -388,7 +388,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 }
 
 
-void chip8_maybe_redraw(chip8 *vm)
+void chip8_redraw(chip8 *vm)
 {
     fb_redraw(vm->display);
 }

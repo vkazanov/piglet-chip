@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         printf("clear screen in 1s...\n");
         sleep(1);
         chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
-        chip8_maybe_redraw(&vm);
+        chip8_redraw(&vm);
     }
 
     {
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x2;      /* y */
 
         chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
-        chip8_maybe_redraw(&vm);
+        chip8_redraw(&vm);
 
         printf("just a random sprite...");
         assert(!vm.regs[Vf]);    /* a pixel was NOT erased */
@@ -419,14 +419,14 @@ int main(int argc, char *argv[])
         chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
         chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
 
-        chip8_maybe_redraw(&vm);
+        chip8_redraw(&vm);
         printf("to be overlapped...");
         sleep(1);
 
         vm.regs[V0] += 4;      /* x */
         vm.regs[V1] += 2;      /* y */
         chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 4));
-        chip8_maybe_redraw(&vm);
+        chip8_redraw(&vm);
 
         printf("overlap");
         assert(vm.regs[Vf]);    /* a pixel was erased */
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
             vm.I = i * 5;
             chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
             chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
-            chip8_maybe_redraw(&vm);
+            chip8_redraw(&vm);
             printf("preloaded sprites...");
             sleep(1);
         }
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
             vm.regs[V0] += 5;
             chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
             chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
-            chip8_maybe_redraw(&vm);
+            chip8_redraw(&vm);
             printf("moving sprites horizontally...");
             sleep(1);
         }
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
             vm.regs[V1] += 5;
             chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));
             chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5));
-            chip8_maybe_redraw(&vm);
+            chip8_redraw(&vm);
             printf("moving sprites vertically...");
             sleep(1);
         }
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
             chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x29)); /* load address */
             chip8_exec(&vm, INSTR_NNN(0x0, 0x00e0));   /* CLS */
             chip8_exec(&vm, INSTR_XY_N(0xd, V0, V1, 0x5)); /* draw  */
-            chip8_maybe_redraw(&vm);
+            chip8_redraw(&vm);
             sleep(1);
         }
     }
