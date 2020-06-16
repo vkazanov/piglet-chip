@@ -2,14 +2,16 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra $(shell pkg-config --cflags libevdev)
 LDFLAGS =  $(shell pkg-config --libs libevdev)
 
-all: pchip test
+all: pchip pchip-test
 
 pchip: main.c chip8.c key-evdev.c fb-console.c
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
-test: test.c chip8.c key-evdev.c fb-console.c
+pchip-test: test.c chip8.c key-evdev.c fb-console.c
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
-	./test
+
+test: pchip-test
+	./$<
 
 clean:
 	rm -vf pchip test
