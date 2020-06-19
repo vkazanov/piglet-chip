@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
         chip8_exec(&vm, INSTR_NNN(0x2, 0x0111));
 
-        assert(vm.stack[0] == PROGRAM_START_BYTES);
+        assert(vm.stack[0] == PROGRAM_START_BYTES + 2);
         assert(vm.PC == 0x0111);
         assert(vm.SP == 1);
     }
@@ -312,11 +312,11 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x1;
         vm.regs[V2] = (0x1 << 7) | 0x1;
 
-        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V0, 0x8));
+        chip8_exec(&vm, INSTR_XY_N(0x8, V1, V0, 0xe));
         assert(vm.regs[V1] == 0x2);
         assert(vm.regs[Vf] == 0);
 
-        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V0, 0x8));
+        chip8_exec(&vm, INSTR_XY_N(0x8, V2, V0, 0xe));
         assert(vm.regs[V2] == 0x2);
         assert(vm.regs[Vf] == 1);
     }
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         vm.PC = 0x1;
         vm.regs[V1] = 0x1;
         chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
-        assert(vm.PC == 0x3);
+        assert(vm.PC == 0x5);
     }
 
     /* SKNP Vx  */

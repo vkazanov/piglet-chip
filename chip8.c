@@ -113,10 +113,10 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x2nnn - CALL addr */
         /* A subroutine call at addr */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "CALL\n");
+        fprintf(stderr, "CALL %.3x\n", nnn);
 #endif
 
-        vm->stack[vm->SP] = vm->PC;
+        vm->stack[vm->SP] = vm->PC + 2;
         vm->SP++;
         vm->PC = nnn;
         do_step = false;
@@ -268,8 +268,8 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             vm->regs[x] = vm->regs[y] - vm->regs[x];
             break;
         }
-        case 0x8:{
-            /* 0x8xy8 - SHL Vx */
+        case 0xe:{
+            /* 0x8xye - SHL Vx */
             /* SHR shift Vx left, if the shifted bit was 1 - set VF to 1,
              * otherwise - to 0 */
 #ifdef DEBUG_TRACE
@@ -357,7 +357,6 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
             if (is_pressed)
                 vm->PC += 2;
-            printf(is_pressed ? "pressed\n" : "not pressed\n");
             break;
         }
         case 0xa1:{
@@ -371,7 +370,6 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
             if (!is_pressed)
                 vm->PC += 2;
-            printf(is_pressed ? "pressed\n" : "not pressed\n");
             break;
         }
         default:
