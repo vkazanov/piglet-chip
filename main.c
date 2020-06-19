@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    /* TODO: SIGSEGV on wrong devices */
     key_evdev *keyboard = NULL;
     int rc = key_evdev_new(keyboard_path, &keyboard);
     if (KEY_EVDEV_SUCCESS != rc) {
@@ -90,6 +91,9 @@ int main(int argc, char *argv[])
         /* usleep(1000); */
 
         uint16_t instruction = chip8_fetch(&vm);
+#ifdef DEBUG_TRACE
+        fprintf(stderr, "PC=0x%.3x\n", vm.PC);
+#endif
         chip8_exec(&vm, instruction);
         chip8_redraw(&vm);
         chip8_tick_timers(&vm);

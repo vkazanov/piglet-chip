@@ -32,16 +32,7 @@ int main(int argc, char *argv[])
     fb_new(&display);
 
     {
-        /* SYS */
-
-        chip8 vm1, vm2;
-        chip8_reset(&vm1, keyboard, display);
-        chip8_reset(&vm2, keyboard, display);
-
-        chip8_exec(&vm1, INSTR_NNN(0x0, 0x0111));
-
-        /* should be equal */
-        assert(0 == memcmp(&vm1, &vm2, sizeof(chip8)));
+        /* SYS - ignored */
     }
 
     {
@@ -109,10 +100,10 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x11;
 
         chip8_exec(&vm, INSTR_XKK(0x3, V1, 0x22));
-        assert(vm.PC == PROGRAM_START_BYTES);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
 
         chip8_exec(&vm, INSTR_XKK(0x3, V1, 0x11));
-        assert(vm.PC == PROGRAM_START_BYTES + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 6);
     }
 
     {
@@ -124,10 +115,10 @@ int main(int argc, char *argv[])
         vm.regs[V1] = 0x11;
 
         chip8_exec(&vm, INSTR_XKK(0x4, V1, 0x11));
-        assert(vm.PC == PROGRAM_START_BYTES);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
 
         chip8_exec(&vm, INSTR_XKK(0x4, V1, 0x22));
-        assert(vm.PC == PROGRAM_START_BYTES + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 6);
     }
 
     {
@@ -141,10 +132,10 @@ int main(int argc, char *argv[])
         vm.regs[V3] = 0x22;
 
         chip8_exec(&vm, INSTR_XY(0x5, V1, V3));
-        assert(vm.PC == PROGRAM_START_BYTES);
+        assert(vm.PC == PROGRAM_START_BYTES + 2);
 
         chip8_exec(&vm, INSTR_XY(0x5, V1, V2));
-        assert(vm.PC == PROGRAM_START_BYTES + 2);
+        assert(vm.PC == PROGRAM_START_BYTES + 6);
     }
 
     {
@@ -343,10 +334,10 @@ int main(int argc, char *argv[])
         uint16_t orig_PC = vm.PC;
 
         chip8_exec(&vm, INSTR_XY(0x9, V1, V2));
-        assert(orig_PC == vm.PC);
+        assert(vm.PC == orig_PC + 2);
 
         chip8_exec(&vm, INSTR_XY(0x9, V1, V3));
-        assert(orig_PC + 2 == vm.PC);
+        assert(vm.PC == orig_PC + 6);
     }
 
     {
@@ -494,7 +485,7 @@ int main(int argc, char *argv[])
         vm.PC = 0x1;
         vm.regs[V1] = 0x1;
         chip8_exec(&vm, INSTR_XKK(0xe, V1, 0xa1));
-        assert(vm.PC == 0x3);
+        assert(vm.PC == 0x5);
     }
 
     {
