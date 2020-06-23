@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define MIN(a,b)                                \
+    ({ __auto_type _a = (a);                    \
+        __auto_type _b = (b);                   \
+        _a < _b ? _a : _b; })
+
 static void load_sprites(chip8 *vm);
 
 void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display)
@@ -505,15 +510,40 @@ void chip8_redraw(chip8 *vm)
     fb_redraw(vm->display);
 }
 
-void chip8_timers(chip8 *vm)
+void chip8_cpu_tick(chip8 *vm)
 {
-    /* decrease the timer */
+    if (vm->usec_to_cpu_tick)
+        return;
+
+    uint16_t instruction = chip8_fetch(vm);
+#ifdef DEBUG_TRACE
+    fprintf(stderr, "PC=0x%.3x\n", vm.PC);
+#endif
+    chip8_exec(vm, instruction);
+    vm->usec_to_cpu_tick += USECONDS_PER_STEP_CPU;
+}
+
+void chip8_timers_tick(chip8 *vm)
+{
+    /* some time left until the next tick? */
+    if (vm->usec_to_timer_tick)
+        return;
+
     if (vm->DT) {
         vm->DT -= 1;
     }
 
-    /* decrease the sound timer */
     if (vm->ST) {
         vm->ST -= 1;
     }
+
+    vm->usec_to_timer_tick += USECONDS_PER_STEP_TIMER;
+}
+
+uint32_t chip8_tick(chip8 *vm)
+{
+    uint32_t usec_to_next = MIN(vm->usec_to_cpu_tick, vm->usec_to_timer_tick);
+    vm->usec_to_cpu_tick -= usec_to_next;
+    vm->usec_to_timer_tick -= usec_to_next;
+    return usec_to_next;
 }

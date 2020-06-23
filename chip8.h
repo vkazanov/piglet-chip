@@ -72,6 +72,10 @@ void chip8_exec(chip8 *vm, uint16_t instruction);
 
 void chip8_redraw(chip8 *vm);
 
-void chip8_timers(chip8 *vm);
+void chip8_cpu_tick(chip8 *vm);
+
+void chip8_timers_tick(chip8 *vm);
+
+uint32_t chip8_tick(chip8 *vm);
 
 #endif /* CHIP8_H */

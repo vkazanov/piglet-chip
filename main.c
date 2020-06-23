@@ -14,27 +14,12 @@
 
 int main(int argc, char *argv[])
 {
-#define DEF_TIMER(name)                      \
-    struct timeval __timer_start_name, __timer_end_name
-#define START_TIMER(name)                       \
-    gettimeofday(&(__timer_start_name), NULL)
-#define STOP_TIMER(name)                        \
-    gettimeofday(&(__timer_end_name), NULL)
-#define READ_TIMER(name)                                                \
-    (((__timer_end_name).tv_sec * 1000000L + (__timer_end_name).tv_usec) - \
-     ((__timer_start_name).tv_sec * 1000000L + (__timer_start_name).tv_usec))
-
-    (void)argc; (void) argv;
-
-    /* TODO: instruction logging */
-    /* TODO: fix test game BLINKY */
+    /* TODO: fix test game BLINKY and the STARS demo */
+    /* TODO: main loop: fix the running state (do i need it at all?)  */
+    /* TODO: main loop: add pause  */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
-    /* TODO: main loop: fix the loop itself */
-    /* TODO: main loop: fix the timers */
-    /* TODO: main loop: fix the running state (do i need it at all?)  */
-    /* TODO: main loop: add pause  */
     /* TODO: better makefile (handle .h changes)  */
     /* TODO: sound */
 
@@ -94,26 +79,17 @@ int main(int argc, char *argv[])
 
     /* main loop */
     while (state == RUNNING) {
-        DEF_TIMER(step);
-        START_TIMER(step);
-
-        uint16_t instruction = chip8_fetch(&vm);
-#ifdef DEBUG_TRACE
-        fprintf(stderr, "PC=0x%.3x\n", vm.PC);
-#endif
-        chip8_exec(&vm, instruction);
+        chip8_cpu_tick(&vm);
+        chip8_timers_tick(&vm);
         chip8_redraw(&vm);
-        chip8_timers(&vm);
 
-        STOP_TIMER(step);
-        uint32_t step_took_useconds = READ_TIMER(step);
-
-        /* printf("step took: %d usec\n", step_took_useconds); */
-        /* printf("time to sleep: %d usec\n", USECONDS_PER_STEP - step_took_useconds); */
-        usleep(USECONDS_PER_STEP_CPU - step_took_useconds);
+        uint32_t usec_to_next = chip8_tick(&vm);
+        usleep(usec_to_next);
     }
 
     /* TODO: deinit things */
 
     return 0;
+
+#undef MIN
 }
