@@ -14,6 +14,16 @@
 
 int main(int argc, char *argv[])
 {
+#define DEF_TIMER(name)                      \
+    struct timeval __timer_start_name, __timer_end_name
+#define START_TIMER(name)                       \
+    gettimeofday(&(__timer_start_name), NULL)
+#define STOP_TIMER(name)                        \
+    gettimeofday(&(__timer_end_name), NULL)
+#define READ_TIMER(name)                                                \
+    (((__timer_end_name).tv_sec * 1000000L + (__timer_end_name).tv_usec) - \
+     ((__timer_start_name).tv_sec * 1000000L + (__timer_start_name).tv_usec))
+
     (void)argc; (void) argv;
 
     /* TODO: instruction logging */
@@ -25,6 +35,7 @@ int main(int argc, char *argv[])
     /* TODO: main loop: fix the timers */
     /* TODO: main loop: fix the running state (do i need it at all?)  */
     /* TODO: main loop: add pause  */
+    /* TODO: better makefile (handle .h changes)  */
     /* TODO: sound */
 
     if (argc != 3){
@@ -83,12 +94,8 @@ int main(int argc, char *argv[])
 
     /* main loop */
     while (state == RUNNING) {
-
-        struct timeval start_time, end_time;
-        gettimeofday(&(start_time), NULL);
-
-        /* TMP: */
-        /* usleep(1000); */
+        DEF_TIMER(step);
+        START_TIMER(step);
 
         uint16_t instruction = chip8_fetch(&vm);
 #ifdef DEBUG_TRACE
@@ -96,16 +103,14 @@ int main(int argc, char *argv[])
 #endif
         chip8_exec(&vm, instruction);
         chip8_redraw(&vm);
-        chip8_tick_timers(&vm);
+        chip8_timers(&vm);
 
-        gettimeofday(&(end_time), NULL);
-        useconds_t step_took_useconds =
-            ((end_time).tv_sec * 1000000L + (end_time).tv_usec) -
-            ((start_time).tv_sec * 1000000L + (start_time).tv_usec);
+        STOP_TIMER(step);
+        uint32_t step_took_useconds = READ_TIMER(step);
 
         /* printf("step took: %d usec\n", step_took_useconds); */
         /* printf("time to sleep: %d usec\n", USECONDS_PER_STEP - step_took_useconds); */
-        usleep(USECONDS_PER_STEP - step_took_useconds);
+        usleep(USECONDS_PER_STEP_CPU - step_took_useconds);
     }
 
     /* TODO: deinit things */

@@ -505,7 +505,7 @@ void chip8_redraw(chip8 *vm)
     fb_redraw(vm->display);
 }
 
-void chip8_tick_timers(chip8 *vm)
+void chip8_timers(chip8 *vm)
 {
     /* decrease the timer */
     if (vm->DT) {

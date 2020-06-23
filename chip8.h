@@ -3,19 +3,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #include "key-evdev.h"
 #include "fb-console.h"
 
-#define DEBUG_TRACE
+/* #define DEBUG_TRACE */
 
 #define MEMORY_SIZE_BYTES (1 << 12) /* 4K */
 #define PROGRAM_START_BYTES (0x200)   /* 512 */
 #define MAX_ROM_SIZE_BYTES (MEMORY_SIZE_BYTES - PROGRAM_START_BYTES)
 #define MAX_STACK_DEPTH 16
-/* #define FREQUENCY 10      /\* Hz *\/ */
-#define FREQUENCY 60      /* Hz */
-#define USECONDS_PER_STEP (1000000 / FREQUENCY) /* Seconds per step */
+
+#define FREQUENCY_CPU 500      /* Hz */
+#define FREQUENCY_TIMER 60     /* Hz */
+static_assert(FREQUENCY_CPU > FREQUENCY_TIMER,
+              "CPU is expected to be faster than both DT and ST");
+
+#define USECONDS_PER_SECOND 1000000
+#define USECONDS_PER_STEP_TIMER (USECONDS_PER_SECOND / FREQUENCY_TIMER)  /* Seconds per step */
+#define USECONDS_PER_STEP_CPU (USECONDS_PER_SECOND / FREQUENCY_CPU)  /* Seconds per step */
 
 enum {
     RUNNING,
@@ -28,6 +35,10 @@ enum {
 } reg_names;
 
 typedef struct chip8 {
+    /* Microseconds left to next CPU/DT/ST ticks */
+    uint32_t usec_to_cpu_tick;
+    uint32_t usec_to_timer_tick;
+
     /* 0x0..0xE - general purpose registers, 0xF for flags  */
     uint8_t regs[0xf];
 
@@ -36,9 +47,8 @@ typedef struct chip8 {
     /* Program counter */
     uint16_t PC;
 
-    /* Delay timer, 60 Hz */
+    /* Delay and sound timers, 60 Hz */
     uint8_t DT;
-    /* Sound timer, 60 Hz */
     uint8_t ST;
 
     /* Stack pointer */
@@ -62,6 +72,6 @@ void chip8_exec(chip8 *vm, uint16_t instruction);
 
 void chip8_redraw(chip8 *vm);
 
-void chip8_tick_timers(chip8 *vm);
+void chip8_timers(chip8 *vm);
 
 #endif /* CHIP8_H */
