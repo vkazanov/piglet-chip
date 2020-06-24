@@ -118,7 +118,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x2nnn - CALL addr */
         /* A subroutine call at addr */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "CALL %.3x\n", nnn);
+        fprintf(stderr, "CALL %.3X\n", nnn);
 #endif
 
         vm->stack[vm->SP] = vm->PC + 2;
@@ -131,7 +131,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x3xkk - SE Vx, byte */
         /* Compare value in Vx with byte kk, skip instr if equal */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "SE\n");
+        fprintf(stderr, "SE V%X, 0x%.2X\n", x, kk);
 #endif
 
         if (vm->regs[x] == kk) {
@@ -189,7 +189,8 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* 0x8xy0 - LD Vx, Vy */
             /* Load Vy into Vx */
 #ifdef DEBUG_TRACE
-            fprintf(stderr, "LD\n");
+            fprintf(stderr, "LD V%.1X, V%.1X (%u %u)\n",
+                    x, y, vm->regs[x], vm->regs[y]);
 #endif
 
             vm->regs[x] = vm->regs[y];
@@ -338,14 +339,14 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0xdxyn - DRW Vx, Vy, nibble */
         /* Display n-byte sprite starting at memory I to location Vx, Vy, while
          * also setting VF to collision check result */
-#ifdef DEBUG_TRACE
-        fprintf(stderr, "DRW\n");
-#endif
-
         bool is_pixel_erased = false;
         fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y], &is_pixel_erased);
         vm->regs[Vf] = !!is_pixel_erased;
 
+#ifdef DEBUG_TRACE
+        fprintf(stderr, "DRW V%.1X, V%.1X, %u (%u %u %u)\n",
+                x, y, n, vm->regs[x], vm->regs[y], vm->regs[Vf]);
+#endif
         break;
     }
     case 0xe:{
@@ -516,7 +517,7 @@ void chip8_cpu_tick(chip8 *vm)
 
     uint16_t instruction = chip8_fetch(vm);
 #ifdef DEBUG_TRACE
-    fprintf(stderr, "PC=0x%.3x\n", vm.PC);
+    fprintf(stderr, "PC: %.3X\n", vm->PC);
 #endif
     chip8_exec(vm, instruction);
     vm->usec_to_cpu_tick += USECONDS_PER_STEP_CPU;
