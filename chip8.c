@@ -344,8 +344,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 
         bool is_pixel_erased = false;
         fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y], &is_pixel_erased);
-        if (is_pixel_erased)
-            vm->regs[Vf] = is_pixel_erased;
+        vm->regs[Vf] = !!is_pixel_erased;
 
         break;
     }
