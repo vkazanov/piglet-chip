@@ -61,22 +61,25 @@ static const uint8_t key_value_map[] = {
 
 
 static const uint8_t value_key_map[] = {
-    [0x0] = KEY_0,
     [0x1] = KEY_1,
     [0x2] = KEY_2,
     [0x3] = KEY_3,
-    [0x4] = KEY_4,
-    [0x5] = KEY_5,
-    [0x6] = KEY_6,
-    [0x7] = KEY_7,
-    [0x8] = KEY_8,
-    [0x9] = KEY_9,
-    [0xA] = KEY_A,
-    [0xB] = KEY_B,
-    [0xC] = KEY_C,
-    [0xD] = KEY_D,
-    [0xE] = KEY_E,
-    [0xF] = KEY_F,
+    [0xC] = KEY_4,
+
+    [0x4] = KEY_Q,
+    [0x5] = KEY_W,
+    [0x6] = KEY_E,
+    [0xD] = KEY_R,
+
+    [0x7] = KEY_A,
+    [0x8] = KEY_S,
+    [0x9] = KEY_D,
+    [0xE] = KEY_F,
+
+    [0xA] = KEY_Z,
+    [0x0] = KEY_X,
+    [0xB] = KEY_C,
+    [0xF] = KEY_V,
 };
 
 static bool is_suitable_device(struct libevdev *dev);

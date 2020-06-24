@@ -25,7 +25,7 @@ void fb_free(fb_console *fb);
 void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, uint8_t y, bool *is_pixel_erased);
 
 /* TODO: bad naming, should be something like refresh */
-void fb_redraw(fb_console *fb);
+void fb_redraw(fb_console *fb, bool keyboard_state[16]);
 
 void fb_clear(fb_console *fb);
 

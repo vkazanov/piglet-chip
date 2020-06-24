@@ -507,7 +507,15 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 
 void chip8_redraw(chip8 *vm)
 {
-    fb_redraw(vm->display);
+    /* TODO: move state generation into a keyboard module function? this might help
+     * with flushing keyboard events later */
+    bool keyboard_state[16] = {0};
+    for (size_t i = 0; i < 16; i++ ){
+        /* TODO: might fail */
+        key_evdev_is_key_pressed(vm->keyboard, i, &keyboard_state[i]);
+    }
+
+    fb_redraw(vm->display, keyboard_state);
 }
 
 void chip8_cpu_tick(chip8 *vm)

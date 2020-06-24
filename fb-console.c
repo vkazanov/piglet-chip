@@ -61,7 +61,7 @@ void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, u
     fb->is_dirty = true;
 }
 
-void fb_redraw(fb_console *fb)
+void fb_redraw(fb_console *fb, bool keyboard_state[16])
 {
     if (!fb->is_dirty)
         return;
@@ -93,6 +93,28 @@ void fb_redraw(fb_console *fb)
     for (size_t y = 0; y < FRAMEBUF_WIDTH; y++)
         putchar('-');
     putchar('*');
+    putchar('\n');
+
+    /* TODO: cleaner  */
+    if (keyboard_state[0x1]) printf("%.1X", 0x1); else printf(" ");
+    if (keyboard_state[0x2]) printf("%.1X", 0x2); else printf(" ");
+    if (keyboard_state[0x3]) printf("%.1X", 0x3); else printf(" ");
+    if (keyboard_state[0xC]) printf("%.1X", 0xC); else printf(" ");
+    putchar('\n');
+    if (keyboard_state[0x4]) printf("%.1X", 0x4); else printf(" ");
+    if (keyboard_state[0x5]) printf("%.1X", 0x5); else printf(" ");
+    if (keyboard_state[0x6]) printf("%.1X", 0x6); else printf(" ");
+    if (keyboard_state[0xD]) printf("%.1X", 0xD); else printf(" ");
+    putchar('\n');
+    if (keyboard_state[0x7]) printf("%.1X", 0x7); else printf(" ");
+    if (keyboard_state[0x8]) printf("%.1X", 0x8); else printf(" ");
+    if (keyboard_state[0x9]) printf("%.1X", 0x9); else printf(" ");
+    if (keyboard_state[0xE]) printf("%.1X", 0xE); else printf(" ");
+    putchar('\n');
+    if (keyboard_state[0xA]) printf("%.1X", 0xA); else printf(" ");
+    if (keyboard_state[0x0]) printf("%.1X", 0x0); else printf(" ");
+    if (keyboard_state[0xB]) printf("%.1X", 0xB); else printf(" ");
+    if (keyboard_state[0xF]) printf("%.1X", 0xF); else printf(" ");
     putchar('\n');
 
     fb->is_dirty = false;
