@@ -130,7 +130,7 @@ void key_evdev_free(key_evdev *ke)
 {
     if (!ke)
         return;
-    /* TODO: fre free the descriptor also as _free doesn't do that */
+    /* TODO: free the descriptor also as _free doesn't do that */
     libevdev_free(ke->dev);
     free(ke);
 }
@@ -147,8 +147,8 @@ int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
             evdev_resync(ke);
         } else if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
             /* Done waiting? */
-            if (ev.type == EV_KEY && key_map[ev.code] != KEY_RESERVED) {
-                *key_pressed = key_value_map[ev.code];
+            if (ev.type == EV_KEY && key_map[ev.code] != KEY_RESERVED && ev.value == 1) {
+                *key_pressed = key_value_map[key_map[ev.code]];
                 return KEY_EVDEV_SUCCESS;
             }
             /* Just ignore non-interesting ones */

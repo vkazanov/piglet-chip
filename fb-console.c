@@ -11,6 +11,8 @@ void fb_new(fb_console **fb)
 {
     *fb = calloc(1, sizeof(**fb));
 
+    **fb = (typeof(**fb)){ .is_dirty = true };
+
     struct termios orig_term_attr;
     struct termios new_term_attr;
     /* TODO: error checking */

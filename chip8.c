@@ -400,11 +400,11 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* Wait for a key press, store the value in Vx */
 
             int key_pressed = 0x0;
-            key_evdev_wait_for_key(vm->keyboard, &key_pressed);
+            int rc = key_evdev_wait_for_key(vm->keyboard, &key_pressed);
             vm->regs[x] = key_pressed;
 #ifdef DEBUG_TRACE
             fprintf(stderr, "LD V%.1X, K\n", x);
-            fprintf(stderr, "Pressed key %.1X\n", x);
+            fprintf(stderr, "Pressed key %.1X (rc=%d)\n", key_pressed, rc);
 #endif
             break;
         }
@@ -523,6 +523,9 @@ void chip8_cpu_tick(chip8 *vm)
 {
     if (vm->usec_to_cpu_tick)
         return;
+
+    /* TODO: check rc code */
+    key_evdev_flush(vm->keyboard);
 
     uint16_t instruction = chip8_fetch(vm);
 #ifdef DEBUG_TRACE
