@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <time.h>
 
 #include "chip8.h"
 
@@ -63,7 +62,6 @@ int main(int argc, char *argv[])
     fb_console *display = NULL;
     fb_new(&display);
 
-
     chip8 vm;
     chip8_reset(&vm, keyboard, display);
 
@@ -73,13 +71,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* TODO: move random number generator into reset code */
-    srand(time(NULL));
+    /*
+     * main loop
+     * */
 
-    /* main loop */
     chip8_redraw(&vm);
 
-    while (state == RUNNING) {
+    for (;;) {
         chip8_cpu_tick(&vm);
         chip8_timers_tick(&vm);
         chip8_redraw(&vm);

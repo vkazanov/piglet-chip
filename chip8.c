@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 #define MIN(a,b)                                \
     ({ __auto_type _a = (a);                    \
@@ -21,6 +22,8 @@ void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display)
     assert(KEY_EVDEV_SUCCESS == key_evdev_flush(vm->keyboard));
 
     load_sprites(vm);
+
+    srand(time(NULL));
 }
 
 const uint8_t sprites[] = {
