@@ -107,7 +107,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x1nnn - JP addr */
         /* Jump to addr */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "JP\n");
+        fprintf(stderr, "JP %.3X\n", nnn);
 #endif
 
         vm->PC = nnn;
@@ -318,7 +318,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0xbnnn - JP V0, nnn */
         /* Jump to V0 + nnn  */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "JP\n");
+        fprintf(stderr, "JP V0, %.3X\n", nnn);
 #endif
 
         vm->PC = vm->regs[V0] + nnn;
