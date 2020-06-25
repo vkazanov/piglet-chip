@@ -183,8 +183,8 @@ int key_evdev_is_key_pressed(key_evdev *ke, int key_to_check, bool *is_key_press
             *is_key_pressed = (value != 0);
             return KEY_EVDEV_SUCCESS;
         } else {
-            /* Error? propagate the error */
-            return rc;
+            /* Error?  */
+            return KEY_EVDEV_FAIL;
         }
     }
 
@@ -206,8 +206,8 @@ int key_evdev_flush(key_evdev *ke)
             /* No more events so we're done  */
             return KEY_EVDEV_SUCCESS;
         } else {
-            /* Error? propagate the error */
-            return rc;
+            /* Error?  */
+            return KEY_EVDEV_FAIL;
         }
     }
 }

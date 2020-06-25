@@ -7,7 +7,7 @@
 
 #include "fb-console.h"
 
-void fb_new(fb_console **fb)
+int fb_new(fb_console **fb)
 {
     *fb = calloc(1, sizeof(**fb));
 
@@ -15,16 +15,24 @@ void fb_new(fb_console **fb)
 
     struct termios orig_term_attr;
     struct termios new_term_attr;
-    /* TODO: error checking */
-    tcgetattr(fileno(stdin), &orig_term_attr);
+    int rc = tcgetattr(fileno(stdin), &orig_term_attr);
+    if (rc != 0) {
+        perror("tcgetattr");
+        return FB_CONSOLE_FAIL;
+    }
 
     memcpy(&new_term_attr, &orig_term_attr, sizeof(struct termios));
     new_term_attr.c_lflag &= ~(ECHO|ICANON);
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;
 
-    /* TODO: error checking */
-    tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
+    rc = tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
+    if (rc != 0) {
+        perror("tcsetattr");
+        return FB_CONSOLE_FAIL;
+    }
+
+    return FB_CONSOLE_SUCCESS;
 }
 
 void fb_free(fb_console *fb)

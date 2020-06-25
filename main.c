@@ -55,9 +55,12 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* TODO: err code checks */
     fb_console *display = NULL;
-    fb_new(&display);
+    rc = fb_new(&display);
+    if (rc != FB_CONSOLE_SUCCESS) {
+        fprintf(stderr, "Failed to init display\n");
+        exit(EXIT_FAILURE);
+    }
 
     chip8 vm;
     chip8_reset(&vm, keyboard, display);

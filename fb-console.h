@@ -9,6 +9,11 @@
 #define FRAMEBUF_SIZE (FRAMEBUF_HEIGHT * FRAMEBUF_WIDTH)
 #define SPRITE_MAX_SIZE 15
 
+enum fb_console_status {
+    FB_CONSOLE_SUCCESS,
+    FB_CONSOLE_FAIL,
+};
+
 typedef struct fb_console {
     /* Framebuffer, previous and new */
     uint8_t fb[FRAMEBUF_SIZE];
@@ -18,7 +23,7 @@ typedef struct fb_console {
 
 } fb_console;
 
-void fb_new(fb_console **fb);
+int fb_new(fb_console **fb);
 
 void fb_free(fb_console *fb);
 
