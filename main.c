@@ -13,8 +13,6 @@
 
 int main(int argc, char *argv[])
 {
-    /* TODO: main loop: fix the running state (do i need it at all?)  */
-    /* TODO: main loop: add pause  */
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: key and key value constants for key-evdev (reuse in key-related
      * tests) */
@@ -50,7 +48,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* TODO: SIGSEGV on wrong devices */
     key_evdev *keyboard = NULL;
     int rc = key_evdev_new(keyboard_path, &keyboard);
     if (KEY_EVDEV_SUCCESS != rc) {

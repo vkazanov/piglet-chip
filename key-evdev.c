@@ -101,19 +101,20 @@ int key_evdev_new(const char *path, key_evdev **ke_ptr)
     rc = libevdev_new_from_fd(fd, &dev);
     if (rc < 0) {
         fprintf(stderr, "Failed to init libevdev (%s)\n", strerror(-rc));
-        return rc;
+        goto err2;
     }
 
     if (!is_suitable_device(dev)) {
-        fprintf(stderr, "This device does is not a suitable keyboard\n");
-        goto err;
+        fprintf(stderr, "Not a suitable keyboard: %s\n", path);
+        goto err1;
     }
 
     ke = calloc(1, sizeof(key_evdev));
     if (ke == NULL) {
         fprintf(stderr, "Calloc failure\n");
-        goto err;
+        goto err1;
     }
+
     ke->dev = dev;
 
     *ke_ptr = ke;
@@ -121,9 +122,10 @@ int key_evdev_new(const char *path, key_evdev **ke_ptr)
     rc = 0;
 
     return rc;
-err:
+err1:
     libevdev_free(dev);
-    return rc;
+err2:
+    return KEY_EVDEV_FAIL;
 }
 
 void key_evdev_free(key_evdev *ke)

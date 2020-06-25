@@ -5,6 +5,7 @@
 
 enum key_evdev_status {
     KEY_EVDEV_SUCCESS,
+    KEY_EVDEV_FAIL,
 };
 
 typedef struct key_evdev key_evdev;
