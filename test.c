@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         sleep(2);
 
         vm.PC = 0x1;
-        vm.regs[V1] = 0x1;
+        vm.regs[V1] = CHIP8_KEY_1;
         chip8_exec(&vm, INSTR_XKK(0xe, V1, 0x9e));
         assert(vm.PC == 0x5);
     }
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
         sleep(2);
 
         vm.PC = 0x1;
-        vm.regs[V1] = 0x1;
+        vm.regs[V1] = CHIP8_KEY_1;
         chip8_exec(&vm, INSTR_XKK(0xe, V1, 0xa1));
         assert(vm.PC == 0x5);
     }
@@ -508,55 +508,55 @@ int main(int argc, char *argv[])
 
         printf("press 1 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x1);
+        assert(vm.regs[V2] == CHIP8_KEY_1);
         printf("press 2 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x2);
+        assert(vm.regs[V2] == CHIP8_KEY_2);
         printf("press 3 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x3);
+        assert(vm.regs[V2] == CHIP8_KEY_3);
         printf("press C to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xc);
+        assert(vm.regs[V2] == CHIP8_KEY_C);
 
         printf("press 4 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x4);
+        assert(vm.regs[V2] == CHIP8_KEY_4);
         printf("press 5 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x5);
+        assert(vm.regs[V2] == CHIP8_KEY_5);
         printf("press 6 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x6);
+        assert(vm.regs[V2] == CHIP8_KEY_6);
         printf("press D to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xd);
+        assert(vm.regs[V2] == CHIP8_KEY_D);
 
         printf("press 7 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x7);
+        assert(vm.regs[V2] == CHIP8_KEY_7);
         printf("press 8 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x8);
+        assert(vm.regs[V2] == CHIP8_KEY_8);
         printf("press 9 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x9);
+        assert(vm.regs[V2] == CHIP8_KEY_9);
         printf("press E to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xe);
+        assert(vm.regs[V2] == CHIP8_KEY_E);
 
         printf("press A to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xa);
+        assert(vm.regs[V2] == CHIP8_KEY_A);
         printf("press 0 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0x0);
+        assert(vm.regs[V2] == CHIP8_KEY_0);
         printf("press B to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xb);
+        assert(vm.regs[V2] == CHIP8_KEY_B);
         printf("press F to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
-        assert(vm.regs[V2] == 0xf);
+        assert(vm.regs[V2] == CHIP8_KEY_F);
     }
 
     {

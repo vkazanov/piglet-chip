@@ -14,10 +14,11 @@
 int main(int argc, char *argv[])
 {
     /* TODO: handle keyboard errors for keyboard errors */
-    /* TODO: key and key value constants for key-evdev (reuse in key-related
-     * tests) */
     /* TODO: better makefile (handle .h changes)  */
+    /* TODO: deinit things */
     /* TODO: sound */
+    /* TODO: rename things (key-evdev -> keyboard) */
+    /* TODO: rename things (fb-console -> display) */
 
     if (argc != 3){
         fprintf(stderr, "Usage: %s <path/to/rom> <path/to/keyboard/dev>\n", argv[0]);
@@ -85,8 +86,6 @@ int main(int argc, char *argv[])
         uint32_t usec_to_next = chip8_tick(&vm);
         usleep(usec_to_next);
     }
-
-    /* TODO: deinit things */
 
     return 0;
 }

@@ -18,68 +18,55 @@ struct key_evdev {
     struct libevdev *dev;
 };
 
-static const int key_map[KEY_CNT] = {
-    [KEY_1] = KEY_1,
-    [KEY_2] = KEY_2,
-    [KEY_3] = KEY_3,
-    [KEY_4] = KEY_C,
-
-    [KEY_Q] = KEY_4,
-    [KEY_W] = KEY_5,
-    [KEY_E] = KEY_6,
-    [KEY_R] = KEY_D,
-
-    [KEY_A] = KEY_7,
-    [KEY_S] = KEY_8,
-    [KEY_D] = KEY_9,
-    [KEY_F] = KEY_E,
-
-    [KEY_Z] = KEY_A,
-    [KEY_X] = KEY_0,
-    [KEY_C] = KEY_B,
-    [KEY_V] = KEY_F,
+static const int keys_defined[] = {
+    KEY_1, KEY_2, KEY_3, KEY_4,
+    KEY_Q, KEY_W, KEY_E, KEY_R,
+    KEY_A, KEY_S, KEY_D, KEY_F,
+    KEY_Z, KEY_X, KEY_C, KEY_V,
 };
 
-static const uint8_t key_value_map[] = {
-    [KEY_0] = 0x0,
-    [KEY_1] = 0x1,
-    [KEY_2] = 0x2,
-    [KEY_3] = 0x3,
-    [KEY_4] = 0x4,
-    [KEY_5] = 0x5,
-    [KEY_6] = 0x6,
-    [KEY_7] = 0x7,
-    [KEY_8] = 0x8,
-    [KEY_9] = 0x9,
-    [KEY_A] = 0xA,
-    [KEY_B] = 0xB,
-    [KEY_C] = 0xC,
-    [KEY_D] = 0xD,
-    [KEY_E] = 0xE,
-    [KEY_F] = 0xF,
+static const int key_to_chip8_key[KEY_CNT] = {
+    [KEY_1] = CHIP8_KEY_1,
+    [KEY_2] = CHIP8_KEY_2,
+    [KEY_3] = CHIP8_KEY_3,
+    [KEY_4] = CHIP8_KEY_C,
+
+    [KEY_Q] = CHIP8_KEY_4,
+    [KEY_W] = CHIP8_KEY_5,
+    [KEY_E] = CHIP8_KEY_6,
+    [KEY_R] = CHIP8_KEY_D,
+
+    [KEY_A] = CHIP8_KEY_7,
+    [KEY_S] = CHIP8_KEY_8,
+    [KEY_D] = CHIP8_KEY_9,
+    [KEY_F] = CHIP8_KEY_E,
+
+    [KEY_Z] = CHIP8_KEY_A,
+    [KEY_X] = CHIP8_KEY_0,
+    [KEY_C] = CHIP8_KEY_B,
+    [KEY_V] = CHIP8_KEY_F,
 };
 
+static const uint8_t chip8_key_to_key[] = {
+    [CHIP8_KEY_1] = KEY_1,
+    [CHIP8_KEY_2] = KEY_2,
+    [CHIP8_KEY_3] = KEY_3,
+    [CHIP8_KEY_C] = KEY_4,
 
-static const uint8_t value_key_map[] = {
-    [0x1] = KEY_1,
-    [0x2] = KEY_2,
-    [0x3] = KEY_3,
-    [0xC] = KEY_4,
+    [CHIP8_KEY_4] = KEY_Q,
+    [CHIP8_KEY_5] = KEY_W,
+    [CHIP8_KEY_6] = KEY_E,
+    [CHIP8_KEY_D] = KEY_R,
 
-    [0x4] = KEY_Q,
-    [0x5] = KEY_W,
-    [0x6] = KEY_E,
-    [0xD] = KEY_R,
+    [CHIP8_KEY_7] = KEY_A,
+    [CHIP8_KEY_8] = KEY_S,
+    [CHIP8_KEY_9] = KEY_D,
+    [CHIP8_KEY_E] = KEY_F,
 
-    [0x7] = KEY_A,
-    [0x8] = KEY_S,
-    [0x9] = KEY_D,
-    [0xE] = KEY_F,
-
-    [0xA] = KEY_Z,
-    [0x0] = KEY_X,
-    [0xB] = KEY_C,
-    [0xF] = KEY_V,
+    [CHIP8_KEY_A] = KEY_Z,
+    [CHIP8_KEY_0] = KEY_X,
+    [CHIP8_KEY_B] = KEY_C,
+    [CHIP8_KEY_F] = KEY_V,
 };
 
 static bool is_suitable_device(struct libevdev *dev);
@@ -137,6 +124,14 @@ void key_evdev_free(key_evdev *ke)
     free(ke);
 }
 
+static bool is_key_code_defined(int code)
+{
+    for (size_t i = 0; i < sizeof(keys_defined) / sizeof(keys_defined[0]); i++)
+        if (keys_defined[i] == code)
+            return true;
+    return false;
+}
+
 int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
 {
     int rc = -1;
@@ -149,8 +144,8 @@ int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
             evdev_resync(ke);
         } else if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
             /* Done waiting? */
-            if (ev.type == EV_KEY && key_map[ev.code] != KEY_RESERVED && ev.value == 1) {
-                *key_pressed = key_value_map[key_map[ev.code]];
+            if (ev.type == EV_KEY && ev.value == 1 && is_key_code_defined(ev.code)) {
+                *key_pressed = key_to_chip8_key[ev.code];
                 return KEY_EVDEV_SUCCESS;
             }
             /* Just ignore non-interesting ones */
@@ -179,7 +174,9 @@ int key_evdev_is_key_pressed(key_evdev *ke, int key_to_check, bool *is_key_press
              * state */
         } else if (rc == -EAGAIN) {
             /* No more events, so let's check keyboard state  */
-            int value = libevdev_get_event_value(ke->dev, EV_KEY, value_key_map[key_to_check]);
+            int value = libevdev_get_event_value(
+                ke->dev, EV_KEY, chip8_key_to_key[key_to_check]
+            );
             *is_key_pressed = (value != 0);
             return KEY_EVDEV_SUCCESS;
         } else {
@@ -226,11 +223,8 @@ static bool is_suitable_device(struct libevdev *dev)
     if (!libevdev_has_event_type(dev, EV_KEY))
         return false;
 
-    for (size_t i = 0; i < sizeof(key_map) / sizeof(key_map[0]); i++) {
-        if (key_map[i] == KEY_RESERVED)
-            continue;
-
-        if (!libevdev_has_event_code(dev, EV_KEY, key_map[i]))
+    for (size_t i = 0; i < sizeof(keys_defined) / sizeof(keys_defined[0]); i++) {
+        if (!libevdev_has_event_code(dev, EV_KEY, keys_defined[i]))
             return false;
     }
 

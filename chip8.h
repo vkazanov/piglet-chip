@@ -25,11 +25,6 @@ static_assert(FREQUENCY_CPU > FREQUENCY_TIMER,
 #define USECONDS_PER_STEP_CPU (USECONDS_PER_SECOND / FREQUENCY_CPU)  /* Seconds per step */
 
 enum {
-    RUNNING,
-    PAUSED,
-} state;
-
-enum {
     V0, V1,V2, V3, V4, V5, V6, V7, V8, V9, Va, Vb, Vc, Vd, Ve,
     Vf
 } reg_names;
