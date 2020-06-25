@@ -107,7 +107,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x1nnn - JP addr */
         /* Jump to addr */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "JP %.3X\n", nnn);
+        fprintf(stderr, "JP 0x%.3X\n", nnn);
 #endif
 
         vm->PC = nnn;
@@ -143,7 +143,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x4xkk - SNE Vx, byte */
         /* Compare value in Vx with byte kk, skip instr if NOT equal */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "SNE\n");
+        fprintf(stderr, "SNE V%.1X, 0x%.2X\n", x, kk);
 #endif
 
         if (vm->regs[x] != kk) {
@@ -167,7 +167,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         /* 0x6xkk - LD Vx, byte */
         /* Load kk into Vx */
 #ifdef DEBUG_TRACE
-        fprintf(stderr, "LD\n");
+        fprintf(stderr, "LD V%.1X, 0x%.2X\n", x, kk);
 #endif
 
         vm->regs[x] = kk;
@@ -230,7 +230,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* 0x8xy4 - ADD Vx, Vy */
             /* ADD Vy into Vx, with carry to VF */
 #ifdef DEBUG_TRACE
-            fprintf(stderr, "ADD\n");
+            fprintf(stderr, "ADD V%.1X, V%.1X\n", x, y);
 #endif
 
             uint16_t acc = vm->regs[x] + vm->regs[y];
@@ -398,13 +398,14 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         case 0x0a:{
             /* 0xfx0a - LD Vx, K */
             /* Wait for a key press, store the value in Vx */
-#ifdef DEBUG_TRACE
-            fprintf(stderr, "LD\n");
-#endif
 
             int key_pressed = 0x0;
             key_evdev_wait_for_key(vm->keyboard, &key_pressed);
             vm->regs[x] = key_pressed;
+#ifdef DEBUG_TRACE
+            fprintf(stderr, "LD V%.1X, K\n", x);
+            fprintf(stderr, "Pressed key %.1X\n", x);
+#endif
             break;
         }
         case 0x15:{
