@@ -78,6 +78,8 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     /* main loop */
+    chip8_redraw(&vm);
+
     while (state == RUNNING) {
         chip8_cpu_tick(&vm);
         chip8_timers_tick(&vm);
