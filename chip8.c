@@ -341,7 +341,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
          * also setting VF to collision check result */
         bool is_pixel_erased = false;
         fb_draw_sprite(vm->display, &vm->ram[vm->I], n, vm->regs[x], vm->regs[y], &is_pixel_erased);
-        vm->regs[Vf] = !!is_pixel_erased;
+        vm->regs[Vf] = is_pixel_erased;
 
 #ifdef DEBUG_TRACE
         fprintf(stderr, "DRW V%.1X, V%.1X, %u (%u %u %u)\n",
@@ -532,6 +532,7 @@ void chip8_cpu_tick(chip8 *vm)
     fprintf(stderr, "PC: %.3X\n", vm->PC);
 #endif
     chip8_exec(vm, instruction);
+
     vm->usec_to_cpu_tick += USECONDS_PER_STEP_CPU;
 }
 

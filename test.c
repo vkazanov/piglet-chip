@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
         chip8_exec(&vm, INSTR_XY_N(0x8, V3, V2, 0x5));
         assert(vm.regs[V3] == 0x0);
-        assert(!vm.regs[Vf]);
+        assert(vm.regs[Vf]);
     }
 
     {
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
         chip8_exec(&vm, INSTR_XY_N(0x8, V3, V2, 0x7));
         assert(vm.regs[V3] == 0x0);
-        assert(!vm.regs[Vf]);
+        assert(vm.regs[Vf]);
     }
 
     {

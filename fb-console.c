@@ -69,8 +69,8 @@ void fb_redraw(fb_console *fb, bool keyboard_state[16])
         return;
     fb->is_dirty = false;
 
-
-    write(fileno(stdout), "\033c", 4);
+    /* Clear screen */
+    write(fileno(stdout), "\033c", 3);
 
     putchar('*');
     for (size_t y = 0; y < FRAMEBUF_WIDTH; y++)

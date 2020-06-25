@@ -91,6 +91,4 @@ int main(int argc, char *argv[])
     /* TODO: deinit things */
 
     return 0;
-
-#undef MIN
 }
