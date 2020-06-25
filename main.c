@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[])
 {
-    /* TODO: fix the STARS demo  */
     /* TODO: main loop: fix the running state (do i need it at all?)  */
     /* TODO: main loop: add pause  */
     /* TODO: handle keyboard errors for keyboard errors */

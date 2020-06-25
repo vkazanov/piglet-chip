@@ -240,14 +240,14 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         }
         case 0x5:{
             /* 0x8xy5 - SUB Vx, Vy */
-            /* SUB Vy from Vx, with borrow result to VF */
-#ifdef DEBUG_TRACE
-            fprintf(stderr, "SUB\n");
-#endif
+            /* SUB Vy from Vx, with NOT borrow result to VF */
 
-            /* NOTE: is it > or >=? Is the reference wrong? */
-            vm->regs[Vf] = (vm->regs[x] > vm->regs[y]) ? 1 : 0;
-            vm->regs[x] -= vm->regs[y];
+            vm->regs[Vf] = vm->regs[x] >= vm->regs[y];
+            vm->regs[x] = vm->regs[x] - vm->regs[y];
+#ifdef DEBUG_TRACE
+            fprintf(stderr, "SUB V%.1X, V%.1X (%u %u %u)\n",
+                    x, y, vm->regs[x], vm->regs[y], vm->regs[Vf]);
+#endif
             break;
         }
         case 0x6:{
@@ -264,13 +264,13 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
         }
         case 0x7:{
             /* 0x8xy7 - SUBN Vx, Vy */
-            /* SUB Vx from Vy, with borrow result to VF,
+            /* SUB Vx from Vy, with NOT borrow result to VF,
              * otherwise - to 0 */
 #ifdef DEBUG_TRACE
             fprintf(stderr, "SUBN\n");
 #endif
 
-            vm->regs[Vf] = (vm->regs[y] > vm->regs[x]) ? 1 : 0;
+            vm->regs[Vf] = vm->regs[y] >= vm->regs[x];
             vm->regs[x] = vm->regs[y] - vm->regs[x];
             break;
         }
