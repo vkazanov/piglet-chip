@@ -18,7 +18,7 @@ struct key_evdev {
     struct libevdev *dev;
 };
 
-static const int keys_defined[] = {
+static const int keys_used[] = {
     KEY_1, KEY_2, KEY_3, KEY_4,
     KEY_Q, KEY_W, KEY_E, KEY_R,
     KEY_A, KEY_S, KEY_D, KEY_F,
@@ -119,15 +119,19 @@ void key_evdev_free(key_evdev *ke)
 {
     if (!ke)
         return;
-    /* TODO: free the descriptor also as _free doesn't do that */
+
+    fd = libevdev_get_fd(ke->dev);
+    if (fd != -1)
+        close(fd);
+
     libevdev_free(ke->dev);
     free(ke);
 }
 
 static bool is_key_code_defined(int code)
 {
-    for (size_t i = 0; i < sizeof(keys_defined) / sizeof(keys_defined[0]); i++)
-        if (keys_defined[i] == code)
+    for (size_t i = 0; i < sizeof(keys_used) / sizeof(keys_used[0]); i++)
+        if (keys_used[i] == code)
             return true;
     return false;
 }
@@ -233,8 +237,8 @@ static bool is_suitable_device(struct libevdev *dev)
     if (!libevdev_has_event_type(dev, EV_KEY))
         return false;
 
-    for (size_t i = 0; i < sizeof(keys_defined) / sizeof(keys_defined[0]); i++) {
-        if (!libevdev_has_event_code(dev, EV_KEY, keys_defined[i]))
+    for (size_t i = 0; i < sizeof(keys_used) / sizeof(keys_used[0]); i++) {
+        if (!libevdev_has_event_code(dev, EV_KEY, keys_used[i]))
             return false;
     }
 

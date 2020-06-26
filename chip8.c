@@ -524,11 +524,14 @@ void chip8_redraw(chip8 *vm)
 
 void chip8_cpu_tick(chip8 *vm)
 {
+    int rc = key_evdev_flush(vm->keyboard);
+    if (rc != KEY_EVDEV_SUCCESS) {
+        fprintf(stderr, "keyboard failure\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (vm->usec_to_cpu_tick)
         return;
-
-    /* TODO: check rc code */
-    key_evdev_flush(vm->keyboard);
 
     uint16_t instruction = chip8_fetch(vm);
 #ifdef DEBUG_TRACE

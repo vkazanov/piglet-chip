@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
     int rc = key_evdev_new("/dev/input/event6", &keyboard);
     assert(KEY_EVDEV_SUCCESS == rc);
 
-    /* TODO: err code checks */
     fb_console *display = NULL;
-    fb_new(&display);
+    rc = fb_new(&display);
+    assert(rc == FB_CONSOLE_SUCCESS);
 
     {
         /* SYS - ignored */

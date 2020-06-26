@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
     /* TODO: handle keyboard errors for keyboard errors */
     /* TODO: better makefile (handle .h changes)  */
-    /* TODO: deinit things */
+    /* TODO: deinit things (also in tests) */
     /* TODO: sound */
     /* TODO: output in the console after running */
     /* TODO: rename things (key-evdev -> keyboard) */
