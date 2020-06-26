@@ -8,13 +8,14 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <linux/input.h>
 
 #include <libevdev/libevdev.h>
 
-#include "key-evdev.h"
+#include "keyboard.h"
 
-struct key_evdev {
+struct keyboard {
     struct libevdev *dev;
 };
 
@@ -70,14 +71,14 @@ static const uint8_t chip8_key_to_key[] = {
 };
 
 static bool is_suitable_device(struct libevdev *dev);
-static void evdev_resync(key_evdev *ke);
+static void evdev_resync(keyboard *ke);
 
-int key_evdev_new(const char *path, key_evdev **ke_ptr)
+int keyboard_new(const char *path, keyboard **ke_ptr)
 {
     int rc = 1;
     int fd = 0;
     struct libevdev *dev = NULL;
-    key_evdev *ke = NULL;
+    keyboard *ke = NULL;
 
     fd = open(path, O_RDONLY | O_NONBLOCK);
     if (fd < 0) {
@@ -96,7 +97,7 @@ int key_evdev_new(const char *path, key_evdev **ke_ptr)
         goto err1;
     }
 
-    ke = calloc(1, sizeof(key_evdev));
+    ke = calloc(1, sizeof(keyboard));
     if (ke == NULL) {
         fprintf(stderr, "Calloc failure\n");
         goto err1;
@@ -112,15 +113,15 @@ int key_evdev_new(const char *path, key_evdev **ke_ptr)
 err1:
     libevdev_free(dev);
 err2:
-    return KEY_EVDEV_FAIL;
+    return KEYBOARD_FAIL;
 }
 
-void key_evdev_free(key_evdev *ke)
+void keyboard_free(keyboard *ke)
 {
     if (!ke)
         return;
 
-    fd = libevdev_get_fd(ke->dev);
+    int fd = libevdev_get_fd(ke->dev);
     if (fd != -1)
         close(fd);
 
@@ -136,7 +137,7 @@ static bool is_key_code_defined(int code)
     return false;
 }
 
-int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
+int keyboard_wait_for_key(keyboard *ke, int *key_pressed)
 {
     int rc = -1;
 
@@ -150,7 +151,7 @@ int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
             /* Done waiting? */
             if (ev.type == EV_KEY && ev.value == 1 && is_key_code_defined(ev.code)) {
                 *key_pressed = key_to_chip8_key[ev.code];
-                return KEY_EVDEV_SUCCESS;
+                return KEYBOARD_SUCCESS;
             }
             /* Just ignore non-interesting ones */
         } else if (rc == -EAGAIN) {
@@ -163,7 +164,7 @@ int key_evdev_wait_for_key(key_evdev *ke, int *key_pressed)
     };
 }
 
-int key_evdev_is_key_pressed(key_evdev *ke, int key_to_check, bool *is_key_pressed)
+int keyboard_is_key_pressed(keyboard *ke, int key_to_check, bool *is_key_pressed)
 {
     int rc = -1;
 
@@ -182,26 +183,26 @@ int key_evdev_is_key_pressed(key_evdev *ke, int key_to_check, bool *is_key_press
                 ke->dev, EV_KEY, chip8_key_to_key[key_to_check]
             );
             *is_key_pressed = (value != 0);
-            return KEY_EVDEV_SUCCESS;
+            return KEYBOARD_SUCCESS;
         } else {
             /* Error?  */
-            return KEY_EVDEV_FAIL;
+            return KEYBOARD_FAIL;
         }
     }
 
 }
 
-int key_evdev_get_key_state(key_evdev *ke, bool keyboard_state[CHIP8_KEY_COUNT])
+int keyboard_get_key_state(keyboard *ke, bool keyboard_state[CHIP8_KEY_COUNT])
 {
     for (size_t i = 0; i < CHIP8_KEY_COUNT; i++ ){
-        int rc = key_evdev_is_key_pressed(ke, i, &keyboard_state[i]);
-        if (rc != KEY_EVDEV_SUCCESS)
+        int rc = keyboard_is_key_pressed(ke, i, &keyboard_state[i]);
+        if (rc != KEYBOARD_SUCCESS)
             return rc;
     }
-    return KEY_EVDEV_SUCCESS;
+    return KEYBOARD_SUCCESS;
 }
 
-int key_evdev_flush(key_evdev *ke)
+int keyboard_flush(keyboard *ke)
 {
     int rc = -1;
 
@@ -215,15 +216,15 @@ int key_evdev_flush(key_evdev *ke)
             /* Just flush events */
         } else if (rc == -EAGAIN) {
             /* No more events so we're done  */
-            return KEY_EVDEV_SUCCESS;
+            return KEYBOARD_SUCCESS;
         } else {
             /* Error?  */
-            return KEY_EVDEV_FAIL;
+            return KEYBOARD_FAIL;
         }
     }
 }
 
-static void evdev_resync(key_evdev *ke)
+static void evdev_resync(keyboard *ke)
 {
     int rc = -1;
     do {

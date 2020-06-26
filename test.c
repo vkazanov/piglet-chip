@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "chip8.h"
-#include "key-evdev.h"
+#include "keyboard.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
 
     setbuf(stdout, NULL);
 
-    key_evdev *keyboard = NULL;
+    keyboard *key = NULL;
     /* TODO: keyboard device files do change on reboots  */
-    int rc = key_evdev_new("/dev/input/event6", &keyboard);
-    assert(KEY_EVDEV_SUCCESS == rc);
+    int rc = keyboard_new("/dev/input/event6", &key);
+    assert(KEYBOARD_SUCCESS == rc);
 
     fb_console *display = NULL;
     rc = fb_new(&display);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
         /* CLS */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         printf("clear screen in 1s...\n");
         sleep(1);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         /* RET */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.SP = 1;
         vm.stack[0] = 0x0222;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         /* JP */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         assert(vm.PC == PROGRAM_START_BYTES);
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         /* CALL */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         assert(vm.stack[0] == 0);
         assert(vm.PC == PROGRAM_START_BYTES);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         /* SE Vx, byte */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x11;
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         /* SNE Vx, byte*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x11;
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         /* SE Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x11;
         vm.regs[V2] = 0x11;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         /* LD Vx, byte*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         chip8_exec(&vm, INSTR_XKK(0x6, V1, 10));
         assert(vm.regs[V1] == 10);
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
         /* ADD Vx, byte*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         chip8_exec(&vm, INSTR_XKK(0x7, V1, 10));
         assert(vm.regs[V1] == 10);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         /* LD Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V2] = 0x22;
         vm.regs[V3] = 0x33;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
         /* OR Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V2] = 0x1;
         vm.regs[V3] = 0x2;
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         /* AND Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V2] = 0x1;
         vm.regs[V3] = 0x3;
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
         /* XOR Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V2] = 0x1;
         vm.regs[V3] = 0x1;
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
         /* ADD Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x1;
         vm.regs[V2] = 0x2;
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         /* SUB Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x1;
         vm.regs[V2] = 0x2;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
         /* SHR Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x3;
         vm.regs[V2] = 0x2;
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
         /* SUBN Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x1;
         vm.regs[V2] = 0x3;
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
         /* SHL Vx, Vy*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x1;
         vm.regs[V2] = (0x1 << 7) | 0x1;
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
         /* SNE Vx, Vy */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V1] = 0x1;
         vm.regs[V2] = 0x1;
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         /* LD I, addr */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x1;
         assert(vm.I == 0x1);
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
         /* JP V0, addr */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V0] = 0x1;
         chip8_exec(&vm, INSTR_NNN(0xb, 0x2));
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
         /* RND Vx, byte */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.regs[V0] = 0x1;
         chip8_exec(&vm, INSTR_XKK(0xc, V0, 0x00));
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
         /* DRW Vx, Vy, nibble */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
         size_t addr = (1 << 11); /* addr 2048 */
         vm.I = addr;
 
@@ -462,8 +462,9 @@ int main(int argc, char *argv[])
     {
         /* SKP Vx  */
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
+        chip8_redraw(&vm);
         printf("keep pressing 1 to make this test pass...\n");
         sleep(2);
 
@@ -477,7 +478,7 @@ int main(int argc, char *argv[])
     {
         /* SKP Vx  */
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         printf("do NOT press 1 to make this test pass...\n");
         sleep(2);
@@ -492,7 +493,7 @@ int main(int argc, char *argv[])
         /* LD Vx, DT */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.DT = 0x11;
         vm.regs[V1] = 0x10;
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
         /* LD Vx, K */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         printf("press 1 to make this test pass...\n");
         chip8_exec(&vm, INSTR_XKK(0xf, V2, 0x0a));
@@ -563,7 +564,7 @@ int main(int argc, char *argv[])
         /* LD DT, Vx */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.DT = 0x11;
         vm.regs[V1] = 0x10;
@@ -575,7 +576,7 @@ int main(int argc, char *argv[])
         /* LD ST, Vx */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.ST = 0x11;
         vm.regs[V1] = 0x10;
@@ -587,7 +588,7 @@ int main(int argc, char *argv[])
         /* ADD I, Vx */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x11;
         vm.regs[V1] = 0x2;
@@ -598,7 +599,7 @@ int main(int argc, char *argv[])
     {
         /* LD F, Vx */
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x11;
         vm.regs[V1] = 0x2;
@@ -625,7 +626,7 @@ int main(int argc, char *argv[])
         /* LD B, Vx*/
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x2;
         vm.regs[V1] = 123;
@@ -639,7 +640,7 @@ int main(int argc, char *argv[])
         /* LD [I], Vx */
 
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x2;
         vm.regs[V1] = 1;
@@ -657,7 +658,7 @@ int main(int argc, char *argv[])
     {
         /* LD Vx, [I] */
         chip8 vm;
-        chip8_reset(&vm, keyboard, display);
+        chip8_reset(&vm, key, display);
 
         vm.I = 0x2;
         vm.ram[vm.I] = 0;
@@ -676,7 +677,7 @@ int main(int argc, char *argv[])
     }
 
     fb_free(display);
-    key_evdev_free(keyboard);
+    keyboard_free(key);
 
     return 0;
 

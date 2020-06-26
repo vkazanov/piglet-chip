@@ -13,13 +13,13 @@
 
 static void load_sprites(chip8 *vm);
 
-void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display)
+void chip8_reset(chip8 *vm, keyboard *key, fb_console *display)
 {
     *vm = (chip8){0};
     vm->PC = PROGRAM_START_BYTES;
-    vm->keyboard = keyboard;
+    vm->key = key;
     vm->display = display;
-    assert(KEY_EVDEV_SUCCESS == key_evdev_flush(vm->keyboard));
+    assert(KEYBOARD_SUCCESS == keyboard_flush(vm->key));
 
     load_sprites(vm);
 
@@ -362,7 +362,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 #endif
 
             bool is_pressed = false;
-            key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
+            keyboard_is_key_pressed(vm->key, vm->regs[x] , &is_pressed);
             if (is_pressed)
                 vm->PC += 2;
             break;
@@ -375,7 +375,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
 #endif
 
             bool is_pressed = false;
-            key_evdev_is_key_pressed(vm->keyboard, vm->regs[x] , &is_pressed);
+            keyboard_is_key_pressed(vm->key, vm->regs[x] , &is_pressed);
             if (!is_pressed)
                 vm->PC += 2;
             break;
@@ -403,7 +403,7 @@ void chip8_exec(chip8 *vm, uint16_t instruction)
             /* Wait for a key press, store the value in Vx */
 
             int key_pressed = 0x0;
-            int rc = key_evdev_wait_for_key(vm->keyboard, &key_pressed);
+            int rc = keyboard_wait_for_key(vm->key, &key_pressed);
             vm->regs[x] = key_pressed;
 #ifdef DEBUG_TRACE
             fprintf(stderr, "LD V%.1X, K\n", x);
@@ -513,8 +513,8 @@ void chip8_redraw(chip8 *vm)
 {
     bool keyboard_state[CHIP8_KEY_COUNT] = {0};
 
-    int rc = key_evdev_get_key_state(vm->keyboard, keyboard_state);
-    if (rc != KEY_EVDEV_SUCCESS) {
+    int rc = keyboard_get_key_state(vm->key, keyboard_state);
+    if (rc != KEYBOARD_SUCCESS) {
         fprintf(stderr, "keyboard failure\n");
         exit(EXIT_FAILURE);
     }
@@ -524,8 +524,8 @@ void chip8_redraw(chip8 *vm)
 
 void chip8_cpu_tick(chip8 *vm)
 {
-    int rc = key_evdev_flush(vm->keyboard);
-    if (rc != KEY_EVDEV_SUCCESS) {
+    int rc = keyboard_flush(vm->key);
+    if (rc != KEYBOARD_SUCCESS) {
         fprintf(stderr, "keyboard failure\n");
         exit(EXIT_FAILURE);
     }

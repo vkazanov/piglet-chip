@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #include "common.h"
-#include "key-evdev.h"
+#include "keyboard.h"
 #include "fb-console.h"
 
 #define MEMORY_SIZE_BYTES (1 << 12) /* 4K */
@@ -55,10 +55,10 @@ typedef struct chip8 {
 
     /* IO */
     fb_console *display;
-    key_evdev *keyboard;
+    keyboard *key;
 } chip8;
 
-void chip8_reset(chip8 *vm, key_evdev *keyboard, fb_console *display);
+void chip8_reset(chip8 *vm, keyboard *key, fb_console *display);
 
 uint16_t chip8_fetch(chip8 *vm);
 

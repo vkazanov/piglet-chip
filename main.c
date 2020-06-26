@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
     /* TODO: deinit things (also in tests) */
     /* TODO: sound */
     /* TODO: output in the console after running */
-    /* TODO: rename things (key-evdev -> keyboard) */
     /* TODO: rename things (fb-console -> display) */
 
     if (argc != 3){
@@ -50,9 +49,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    key_evdev *keyboard = NULL;
-    int rc = key_evdev_new(keyboard_path, &keyboard);
-    if (KEY_EVDEV_SUCCESS != rc) {
+    keyboard *key = NULL;
+    int rc = keyboard_new(keyboard_path, &key);
+    if (KEYBOARD_SUCCESS != rc) {
         fprintf(stderr, "Failed to init keyboard:  %s\n", keyboard_path);
         exit(EXIT_FAILURE);
     }
@@ -65,7 +64,7 @@ int main(int argc, char *argv[])
     }
 
     chip8 vm;
-    chip8_reset(&vm, keyboard, display);
+    chip8_reset(&vm, key, display);
 
     ssize_t bytes_read = read(rom_fd, vm.ram + PROGRAM_START_BYTES, (size_t)sb.st_size);
     if (bytes_read != sb.st_size) {
