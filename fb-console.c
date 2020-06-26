@@ -71,7 +71,7 @@ void fb_draw_sprite(fb_console *fb, uint8_t *source, uint8_t bytes, uint8_t x, u
     fb->is_dirty = true;
 }
 
-void fb_redraw(fb_console *fb, bool keyboard_state[16])
+void fb_redraw(fb_console *fb, bool keyboard_state[CHIP8_KEY_COUNT])
 {
     if (!fb->is_dirty)
         return;

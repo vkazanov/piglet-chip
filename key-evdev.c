@@ -187,6 +187,16 @@ int key_evdev_is_key_pressed(key_evdev *ke, int key_to_check, bool *is_key_press
 
 }
 
+int key_evdev_get_key_state(key_evdev *ke, bool keyboard_state[CHIP8_KEY_COUNT])
+{
+    for (size_t i = 0; i < CHIP8_KEY_COUNT; i++ ){
+        int rc = key_evdev_is_key_pressed(ke, i, &keyboard_state[i]);
+        if (rc != KEY_EVDEV_SUCCESS)
+            return rc;
+    }
+    return KEY_EVDEV_SUCCESS;
+}
+
 int key_evdev_flush(key_evdev *ke)
 {
     int rc = -1;
@@ -229,17 +239,4 @@ static bool is_suitable_device(struct libevdev *dev)
     }
 
     return true;
-}
-
-static int print_event(struct input_event *ev)
-{
-    if (ev->type != EV_SYN)
-        printf("Event: type %d (%s), code %d (%s), value %d\n",
-               ev->type,
-               libevdev_event_type_get_name(ev->type),
-               ev->code,
-               libevdev_event_code_get_name(ev->type, ev->code),
-               ev->value);
-    return 0;
-
 }

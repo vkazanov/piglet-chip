@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "common.h"
 
 #define FRAMEBUF_HEIGHT 32u
 #define FRAMEBUF_WIDTH 64u

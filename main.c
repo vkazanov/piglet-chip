@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     /* TODO: better makefile (handle .h changes)  */
     /* TODO: deinit things */
     /* TODO: sound */
+    /* TODO: output in the console after running */
     /* TODO: rename things (key-evdev -> keyboard) */
     /* TODO: rename things (fb-console -> display) */
 

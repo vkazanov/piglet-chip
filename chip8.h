@@ -5,10 +5,9 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "common.h"
 #include "key-evdev.h"
 #include "fb-console.h"
-
-#define DEBUG_TRACE
 
 #define MEMORY_SIZE_BYTES (1 << 12) /* 4K */
 #define PROGRAM_START_BYTES (0x200)   /* 512 */
