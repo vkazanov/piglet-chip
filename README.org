@@ -1,6 +1,6 @@
 * A CHIP-8 emulator
 
-  A little [[CHIP-8][https://en.wikipedia.org/wiki/CHIP-8]] emulator created as an excuse to play with low-level input event handling in
+  A little [[https://en.wikipedia.org/wiki/CHIP-8][CHIP-8]] emulator created as an excuse to play with low-level input event handling in
   Linux.
 
   The emulator uses a POSIX-ish console for display and =libevdev= for input. Because it
