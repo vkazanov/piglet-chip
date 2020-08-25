@@ -13,13 +13,6 @@
 
 int main(int argc, char *argv[])
 {
-    /* TODO: handle keyboard errors for keyboard errors */
-    /* TODO: better makefile (handle .h changes)  */
-    /* TODO: deinit things (also in tests) */
-    /* TODO: sound */
-    /* TODO: output in the console after running */
-    /* TODO: rename things (fb-console -> display) */
-
     if (argc != 3){
         fprintf(stderr, "Usage: %s <path/to/rom> <path/to/keyboard/dev>\n", argv[0]);
         exit(EXIT_FAILURE);

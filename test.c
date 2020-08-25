@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "chip8.h"
 #include "keyboard.h"
@@ -18,18 +19,30 @@ int main(int argc, char *argv[])
 #define INSTR_XY_N(type, x, y, n)                                       \
     (((0x000f & type) << 12) | ((0x000f & x) << 8) | ((0x00ff & y) << 4) | \
      (0x000f & n))
-    (void) argc; (void) argv;
 
     setbuf(stdout, NULL);
 
+    if (argc != 2){
+        fprintf(stderr, "Usage: %s <path/to/keyboard/dev>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
     keyboard *key = NULL;
-    /* TODO: keyboard device files do change on reboots  */
-    int rc = keyboard_new("/dev/input/event6", &key);
-    assert(KEYBOARD_SUCCESS == rc);
+    int rc;
+    {
+        const char *input_device_path = argv[1];
+        rc = keyboard_new(input_device_path, &key);
+        if (rc != KEYBOARD_SUCCESS) {
+            fprintf(stderr, "Failed to open input device: %s", argv[1]);
+            exit(EXIT_FAILURE);
+        }
+    }
 
     fb_console *display = NULL;
-    rc = fb_new(&display);
-    assert(rc == FB_CONSOLE_SUCCESS);
+    {
+        rc = fb_new(&display);
+        assert(rc == FB_CONSOLE_SUCCESS);
+    }
 
     {
         /* SYS - ignored */
