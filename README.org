@@ -1,11 +1,11 @@
-* A console CHIP-8 emulator
+* A CHIP-8 emulator
 
-  A little emulator created as an excuse to play with low-level input event handling in
+  A little [[CHIP-8][https://en.wikipedia.org/wiki/CHIP-8]] emulator created as an excuse to play with low-level input event handling in
   Linux.
 
   The emulator uses a POSIX-ish console for display and =libevdev= for input. Because it
   doesn't use =libudev= it is necessary to specify a keyboard-like device from
-  =/dev/input/events6= for running tests and the emulator.
+  =/dev/input/events6= for running tests and the emulator. There is no sound emulation.
 
 
 * Building
