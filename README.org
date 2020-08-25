@@ -1,0 +1,53 @@
+* A console CHIP-8 emulator
+
+  A little emulator created as an excuse to play with low-level input event handling in
+  Linux.
+
+  The emulator uses a POSIX-ish console for display and =libevdev= for input. Because it
+  doesn't use =libudev= it is necessary to specify a keyboard-like device from
+  =/dev/input/events6= for running tests and the emulator.
+
+
+* Building
+
+  The following should do the trick on Linux using any recent GCC:
+
+  #+begin_src shell
+  make
+  # run emulator tests
+  ./pchip-test /dev/input/event6
+  # run the emulator
+  ./pchip roms/programs/Life\ \[GV\ Samways,\ 1980\].ch8 /dev/input/event6 2> output.txt
+  #+end_src
+
+  Of course, =libevdev= headers are mandatory.
+
+
+* Keyboard
+
+  The emulator uses the left side of the keyboard for control. Here's how usual PC keys
+  are mapped onto the CHIP-8 keyboard:
+
+  #+begin_src c
+  static const int key_to_chip8_key[KEY_CNT] = {
+      [KEY_1] = CHIP8_KEY_1,
+      [KEY_2] = CHIP8_KEY_2,
+      [KEY_3] = CHIP8_KEY_3,
+      [KEY_4] = CHIP8_KEY_C,
+
+      [KEY_Q] = CHIP8_KEY_4,
+      [KEY_W] = CHIP8_KEY_5,
+      [KEY_E] = CHIP8_KEY_6,
+      [KEY_R] = CHIP8_KEY_D,
+
+      [KEY_A] = CHIP8_KEY_7,
+      [KEY_S] = CHIP8_KEY_8,
+      [KEY_D] = CHIP8_KEY_9,
+      [KEY_F] = CHIP8_KEY_E,
+
+      [KEY_Z] = CHIP8_KEY_A,
+      [KEY_X] = CHIP8_KEY_0,
+      [KEY_C] = CHIP8_KEY_B,
+      [KEY_V] = CHIP8_KEY_F,
+  };
+  #+end_src
